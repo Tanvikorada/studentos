@@ -123,15 +123,11 @@ export default function Shell() {
 
   return (
     <div className="shell">
-      {/* Background Glow Spheres */}
-      <div className="bg-glow-sphere bg-glow-sphere-1" />
-      <div className="bg-glow-sphere bg-glow-sphere-2" />
-
       {/* Sidebar */}
       <nav className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo" style={{ boxShadow: '0 0 20px var(--violet)' }}>
-            <GraduationCap size={18} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, var(--violet), var(--mint))', color: '#fff', flexShrink: 0 }}>
+            <GraduationCap size={18} strokeWidth={2.5} />
           </div>
           {!collapsed && (
             <span className="sidebar-title highlight-word" style={{ fontSize: '1.3rem', background: 'none', WebkitTextFillColor: 'initial' }}>
