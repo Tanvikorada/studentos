@@ -129,10 +129,14 @@ export default function Shell() {
       {/* Sidebar */}
       <nav className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
-          <div className="sidebar-logo">
+          <div className="sidebar-logo" style={{ boxShadow: '0 0 20px var(--violet)' }}>
             <GraduationCap size={18} />
           </div>
-          {!collapsed && <span className="sidebar-title">StudentOS</span>}
+          {!collapsed && (
+            <span className="sidebar-title highlight-word" style={{ fontSize: '1.3rem', background: 'none', WebkitTextFillColor: 'initial' }}>
+              Student<span className="letter-hl">OS</span>
+            </span>
+          )}
           <button className="btn btn-ghost btn-icon" onClick={() => setCollapsed(c => !c)}
             style={{ marginLeft: 'auto', color: 'var(--text3)', flexShrink: 0 }}>
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}

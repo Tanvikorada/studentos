@@ -751,7 +751,7 @@ export function Settings() {
             { id: 'velvet-lavender', name: 'Velvet', icon: '💜', desc: 'Rich purple pink', colors: ['#c084fc', '#f43f5e'] },
             { id: 'solar-eclipse', name: 'Solar', icon: '🔥', desc: 'Amber & orange', colors: ['#f59e0b', '#ef4444'] },
             { id: 'gamified', name: 'Gamified', icon: '🎮', desc: 'Neon arcade', colors: ['#00ff80', '#ff00ff'] },
-            { id: 'zen-minimal', name: 'Zen', icon: '☯️', desc: 'Pure minimal', colors: ['#e0e0e0', '#555555'] },
+            { id: 'light-mode', name: 'Light Mode', icon: '☀️', desc: 'Clean white minimal', colors: ['#6366f1', '#0ea5e9'] },
           ].map(t => (
             <div key={t.id}
               onClick={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.theme = t.id; }, 'Changed theme')}
