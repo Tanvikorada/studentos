@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState } from 'react';
 import { useDB, mutateDB, toast, aiAnalyze } from '../store';
 import { Plus, Trash2, Sparkles, Clock, MapPin, User } from 'lucide-react';

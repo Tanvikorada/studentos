@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze } from '../store';
@@ -186,7 +187,7 @@ export function Portfolio() {
   const portfolioHTML = () => {
     const projectHTML = (projects || []).map(p => `<article class="project"><h3>${p.name || ''}</h3><p>${p.desc || ''}</p><div>${(p.tech || []).map(t => `<span>${t}</span>`).join('')}</div>${p.repo ? `<a href="${p.repo}">View project</a>` : ''}</article>`).join('');
     const skillHTML = (skills || []).map(s => `<span>${s.name || s}</span>`).join('');
-    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${profile.name || 'Portfolio'}</title><style>body{font-family:Inter,Arial,sans-serif;margin:0;background:#0f172a;color:#e5e7eb;line-height:1.6}main{max-width:980px;margin:auto;padding:56px 22px}.hero{min-height:48vh;display:grid;align-content:center}h1{font-size:clamp(2.4rem,8vw,5rem);margin:0}p{color:#cbd5e1}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.project{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:18px;background:rgba(255,255,255,.04)}span{display:inline-block;margin:4px;padding:5px 10px;border-radius:999px;background:#1e293b;color:#93c5fd}a{color:#67e8f9}</style></head><body><main class="${layout}"><section class="hero"><StyledText text="${profile.name || 'Student Portfolio'}" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} /><p>${profile.headline || ''}</p><p>${profile.bio || resumeData?.basics?.summary || ''}</p><p>${resumeData?.basics?.email || ''}</p></section><section><h2>Projects</h2><div class="grid">${projectHTML}</div></section><section><h2>Skills</h2>${skillHTML}</section></main></body></html>`;
+    return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${profile.name || 'Portfolio'}</title><style>body{font-family:Inter,Arial,sans-serif;margin:0;background:#0f172a;color:#e5e7eb;line-height:1.6}main{max-width:980px;margin:auto;padding:56px 22px}.hero{min-height:48vh;display:grid;align-content:center}h1{font-size:clamp(2.4rem,8vw,5rem);margin:0}p{color:#cbd5e1}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}.project{border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:18px;background:rgba(255,255,255,.04)}span{display:inline-block;margin:4px;padding:5px 10px;border-radius:999px;background:#1e293b;color:#93c5fd}a{color:#67e8f9}</style></head><body><main class="${layout}"><section class="hero"><h1>${profile.name || 'Student Portfolio'}</h1><p>${profile.headline || ''}</p><p>${profile.bio || resumeData?.basics?.summary || ''}</p><p>${resumeData?.basics?.email || ''}</p></section><section><h2>Projects</h2><div class="grid">${projectHTML}</div></section><section><h2>Skills</h2>${skillHTML}</section></main></body></html>`;
   };
 
   const downloadHTML = () => {
@@ -223,7 +224,7 @@ export function Portfolio() {
         <div style={{ width: 90, height: 90, borderRadius: '50%', background: 'linear-gradient(135deg,var(--violet),var(--mint))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2rem', fontWeight: 800, color: '#fff', boxShadow: '0 8px 24px rgba(99, 102, 241, 0.25)' }}>
           {profile.name?.[0] || 'S'}
         </div>
-        <StyledText text="{profile.name}" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
+        <StyledText text={profile.name} style={{ fontSize: '2.25rem', display: 'block', marginBottom: '1rem' }} />
         <p style={{ color: 'var(--violet2)', marginTop: 6, fontWeight: 600, fontSize: '1rem' }}>{profile.headline}</p>
         <p style={{ color: 'var(--text2)', fontSize: '0.875rem', marginTop: 8, opacity: 0.9 }}>{profile.college} • {profile.dept}</p>
         

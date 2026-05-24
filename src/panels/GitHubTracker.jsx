@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState } from 'react';
 import { useDB, mutateDB, toast } from '../store';
 import { GitBranch, Search, Star, GitFork, ExternalLink, Activity } from 'lucide-react';

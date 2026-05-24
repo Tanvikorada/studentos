@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw, Bell, Sparkles, Music } from 'lucide-react';

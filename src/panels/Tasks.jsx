@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDB, mutateDB, toast, addXP, aiAnalyze, scheduleReminder } from '../store';

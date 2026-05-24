@@ -1,3 +1,4 @@
+import StyledText from '../components/StyledText';
 import { useState, useEffect } from 'react';
 import { useDB, mutateDB, toast, calcCGPA, addXP, callGroq, aiAnalyze } from '../store';
 import { Radar } from 'react-chartjs-2';
