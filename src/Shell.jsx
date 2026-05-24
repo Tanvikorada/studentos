@@ -173,7 +173,7 @@ export default function Shell() {
           {/* Header */}
           <div className="header">
             <div className="header-title" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span>{panelLabel}</span>
+              <span className="highlight-word" style={{ fontSize: '1.6rem', background: 'none', WebkitTextFillColor: 'initial', fontWeight: 400 }}>{panelLabel}</span>
               
               {/* Dynamic GPA Capsule */}
               {cgpa > 0 && (
