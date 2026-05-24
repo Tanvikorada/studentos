@@ -2073,85 +2073,86 @@ select.input option {
   100% { transform: translate(-5%, 5%) scale(0.95); }
 }
  
- / *   = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =  
-       S T R U C T U R A L   R E A L   S T Y L E S  
-       = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =   * /  
-  
- / *   C h a t G P T   R e a l   S t y l e   * /  
- [ d a t a - t h e m e = " c h a t g p t - s t y l e " ]   . s i d e b a r   {  
-     b a c k g r o u n d :   # 1 7 1 7 1 7 ;  
-     b o r d e r - r i g h t :   n o n e ;  
- }  
- [ d a t a - t h e m e = " c h a t g p t - s t y l e " ]   . n a v - i t e m . a c t i v e   {  
-     b a c k g r o u n d :   # 2 1 2 1 2 1 ;  
-     c o l o r :   # e c e c e c ;  
-     b o r d e r - l e f t :   n o n e ;  
-     b o r d e r - r a d i u s :   8 p x ;  
- }  
- [ d a t a - t h e m e = " c h a t g p t - s t y l e " ]   . c a r d   {  
-     b a c k g r o u n d :   t r a n s p a r e n t ;  
-     b o r d e r :   1 p x   s o l i d   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 1 ) ;  
-     b o x - s h a d o w :   n o n e ;  
- }  
- [ d a t a - t h e m e = " c h a t g p t - s t y l e " ]   . i n p u t   {  
-     b a c k g r o u n d :   # 2 f 2 f 2 f ;  
-     b o r d e r :   1 p x   s o l i d   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 1 ) ;  
- }  
-  
- / *   C l a u d e   R e a l   S t y l e   * /  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . s i d e b a r   {  
-     b a c k g r o u n d :   # f 3 f 1 e b ;  
-     b o r d e r - r i g h t :   1 p x   s o l i d   # e 5 e 3 d b ;  
- }  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . n a v - i t e m . a c t i v e   {  
-     b a c k g r o u n d :   # e a e 7 d f ;  
-     c o l o r :   # 2 a 2 8 2 5 ;  
-     f o n t - w e i g h t :   6 0 0 ;  
-     b o r d e r - l e f t :   n o n e ;  
-     b o r d e r - r a d i u s :   6 p x ;  
- }  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . c a r d   {  
-     b a c k g r o u n d :   # f f f f f f ;  
-     b o r d e r :   1 p x   s o l i d   # e 5 e 3 d b ;  
-     b o x - s h a d o w :   0   2 p x   8 p x   r g b a ( 0 , 0 , 0 , 0 . 0 2 ) ;  
-     b o r d e r - r a d i u s :   1 2 p x ;  
- }  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . i n p u t   {  
-     b a c k g r o u n d :   # f f f f f f ;  
-     b o r d e r :   1 p x   s o l i d   # e 5 e 3 d b ;  
- }  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . m a i n - c o n t e n t   h 1 ,    
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . m a i n - c o n t e n t   h 2 ,    
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . m a i n - c o n t e n t   h 3 ,  
- [ d a t a - t h e m e = " c l a u d e - s t y l e " ]   . s t y l e d - h e a d i n g   {  
-     f o n t - f a m i l y :   ' I n s t r u m e n t   S e r i f ' ,   G e o r g i a ,   s e r i f ;  
- }  
-  
- / *   G e m i n i   R e a l   S t y l e   * /  
- [ d a t a - t h e m e = " g e m i n i - s t y l e " ]   . s i d e b a r   {  
-     b a c k g r o u n d :   # f 0 f 4 f 9 ;  
-     b o r d e r - r i g h t :   n o n e ;  
- }  
- [ d a t a - t h e m e = " g e m i n i - s t y l e " ]   . n a v - i t e m . a c t i v e   {  
-     b a c k g r o u n d :   # d 3 e 3 f d ;  
-     c o l o r :   # 0 4 1 e 4 9 ;  
-     b o r d e r - r a d i u s :   9 9 p x ;  
-     b o r d e r - l e f t :   n o n e ;  
- }  
- [ d a t a - t h e m e = " g e m i n i - s t y l e " ]   . c a r d   {  
-     b a c k g r o u n d :   # f f f f f f ;  
-     b o r d e r :   n o n e ;  
-     b o x - s h a d o w :   0   4 p x   1 2 p x   r g b a ( 0 , 0 , 0 , 0 . 0 3 ) ;  
-     b o r d e r - r a d i u s :   2 4 p x ;  
- }  
- [ d a t a - t h e m e = " g e m i n i - s t y l e " ]   . i n p u t   {  
-     b a c k g r o u n d :   # f f f f f f ;  
-     b o r d e r :   n o n e ;  
-     b o x - s h a d o w :   0   2 p x   6 p x   r g b a ( 0 , 0 , 0 , 0 . 0 5 ) ;  
-     b o r d e r - r a d i u s :   9 9 p x ;  
-     p a d d i n g :   1 2 p x   2 0 p x ;  
- }  
- [ d a t a - t h e m e = " g e m i n i - s t y l e " ]   . b t n   {  
-     b o r d e r - r a d i u s :   9 9 p x ;  
- }  
  
+
+/* ================================
+   STRUCTURAL REAL STYLES
+   ================================ */
+
+/* ChatGPT Real Style */
+[data-theme="chatgpt-style"] .sidebar {
+  background: #171717;
+  border-right: none;
+}
+[data-theme="chatgpt-style"] .nav-item.active {
+  background: #212121;
+  color: #ececec;
+  border-left: none;
+  border-radius: 8px;
+}
+[data-theme="chatgpt-style"] .card {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: none;
+}
+[data-theme="chatgpt-style"] .input {
+  background: #2f2f2f;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Claude Real Style */
+[data-theme="claude-style"] .sidebar {
+  background: #f3f1eb;
+  border-right: 1px solid #e5e3db;
+}
+[data-theme="claude-style"] .nav-item.active {
+  background: #eae7df;
+  color: #2a2825;
+  font-weight: 600;
+  border-left: none;
+  border-radius: 6px;
+}
+[data-theme="claude-style"] .card {
+  background: #ffffff;
+  border: 1px solid #e5e3db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  border-radius: 12px;
+}
+[data-theme="claude-style"] .input {
+  background: #ffffff;
+  border: 1px solid #e5e3db;
+}
+[data-theme="claude-style"] .main-content h1, 
+[data-theme="claude-style"] .main-content h2, 
+[data-theme="claude-style"] .main-content h3,
+[data-theme="claude-style"] .styled-heading {
+  font-family: 'Instrument Serif', Georgia, serif;
+}
+
+/* Gemini Real Style */
+[data-theme="gemini-style"] .sidebar {
+  background: #f0f4f9;
+  border-right: none;
+}
+[data-theme="gemini-style"] .nav-item.active {
+  background: #d3e3fd;
+  color: #041e49;
+  border-radius: 99px;
+  border-left: none;
+}
+[data-theme="gemini-style"] .card {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border-radius: 24px;
+}
+[data-theme="gemini-style"] .input {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 99px;
+  padding: 12px 20px;
+}
+[data-theme="gemini-style"] .btn {
+  border-radius: 99px;
+}
