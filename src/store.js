@@ -63,7 +63,7 @@ const defaultDB = {
   codeSnippets: [],
   settings: {
     groqApiKey: '',
-    theme: 'cyberpunk-hacker',
+    theme: 'chatgpt-style',
     notificationsEnabled: false,
     onboardingComplete: false,
   },

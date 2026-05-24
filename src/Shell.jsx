@@ -91,7 +91,7 @@ export default function Shell() {
 
   // Bind theme to DOM
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', db.settings?.theme || 'cyberpunk-hacker');
+    document.documentElement.setAttribute('data-theme', db.settings?.theme || 'chatgpt-style');
   }, [db.settings?.theme]);
 
   // Cmd+K

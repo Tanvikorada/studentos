@@ -747,12 +747,9 @@ export function Settings() {
         <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 16, color: 'var(--text)' }}>✨ Aesthetics &amp; Theme</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
           {[
-            { id: 'cyberpunk-hacker', name: 'Cyberpunk', icon: '⚡', desc: 'Dark violet neon', colors: ['#8b5cf6', '#06b6d4'] },
-            { id: 'aurora-emerald', name: 'Aurora', icon: '🌿', desc: 'Deep forest green', colors: ['#10b981', '#3b82f6'] },
-            { id: 'velvet-lavender', name: 'Velvet', icon: '💜', desc: 'Rich purple pink', colors: ['#c084fc', '#f43f5e'] },
-            { id: 'solar-eclipse', name: 'Solar', icon: '🔥', desc: 'Amber & orange', colors: ['#f59e0b', '#ef4444'] },
-            { id: 'gamified', name: 'Gamified', icon: '🎮', desc: 'Neon arcade', colors: ['#00ff80', '#ff00ff'] },
-            { id: 'light-mode', name: 'Light Mode', icon: '☀️', desc: 'Clean white minimal', colors: ['#6366f1', '#0ea5e9'] },
+            { id: 'chatgpt-style', name: 'ChatGPT', icon: '🤖', desc: 'Dark sleek code UI', colors: ['#212121', '#10a37f'] },
+            { id: 'claude-style', name: 'Claude', icon: '📝', desc: 'Light academic reading', colors: ['#faf9f5', '#d97757'] },
+            { id: 'gemini-style', name: 'Gemini', icon: '✨', desc: 'Soft Google aesthetic', colors: ['#ffffff', '#1a73e8'] },
           ].map(t => (
             <div key={t.id}
               onClick={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.theme = t.id; }, 'Changed theme')}
