@@ -301,8 +301,13 @@ input, textarea, select {
   font-family: inherit;
   outline: none;
   border: none;
-  background: none;
+  background: transparent;
   color: var(--text);
+  transition: all 0.3s ease;
+}
+
+input:hover, textarea:hover, select:hover {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 a {
@@ -315,7 +320,7 @@ ul, ol {
   list-style: none;
 }
 
-/* Custom Scrollbar */
+/* Custom Invisible-Until-Hover Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -323,6 +328,20 @@ ul, ol {
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+  transition: background 0.3s;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+*:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--violet);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -652,10 +671,11 @@ ul, ol {
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4), var(--glow);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-5px) scale(1.02) perspective(1000px) rotateX(2deg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--glow);
   background: var(--surface2);
+  z-index: 10;
 }
 
 .card-glass {
@@ -685,18 +705,20 @@ ul, ol {
 }
 
 .btn:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--violet), #4f46e5);
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--violet2), var(--violet));
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -753,19 +775,27 @@ ul, ol {
 /* Inputs */
 .input {
   width: 100%;
-  padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
 .input:focus {
-  border-color: var(--border2);
+  border-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: var(--violet);
   background: rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.15);
+  transform: translateY(-1px);
 }
 
 .input::placeholder {
@@ -2032,4 +2062,42 @@ select.input option {
   .main { margin: 0 !important; padding: 0 !important; height: auto !important; }
   .shell { height: auto !important; overflow: visible !important; }
   * { text-shadow: none !important; box-shadow: none !important; }
+}
+/* --- Ambient Background Glow Spheres --- */
+.bg-glow-sphere {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+  animation: floatOrb 20s infinite ease-in-out alternate;
+}
+
+.bg-glow-sphere-1 {
+  width: 60vw;
+  height: 60vh;
+  background: radial-gradient(circle, var(--violet) 0%, transparent 70%);
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.bg-glow-sphere-2 {
+  width: 50vw;
+  height: 50vh;
+  background: radial-gradient(circle, var(--mint) 0%, transparent 70%);
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -5s;
+}
+
+[data-theme="light-mode"] .bg-glow-sphere {
+  opacity: 0.15;
+}
+
+@keyframes floatOrb {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 15%) scale(1.1); }
+  100% { transform: translate(-5%, 5%) scale(0.95); }
 }

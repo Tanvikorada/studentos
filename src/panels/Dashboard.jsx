@@ -201,6 +201,19 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
     setStudyLoading(false);
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
+
   return (
     <div className="animate-fade">
       <div style={{ marginBottom: 28 }}>
@@ -230,16 +243,16 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
         <button className="btn btn-secondary" onClick={generateStudyPlan} disabled={studyLoading}><Sparkles size={16} /> {studyLoading ? 'Planning...' : 'What should I study?'}</button>
       </div>
 
-      <div className="grid-2 mb-6">
-        <div className="card">
+      <motion.div variants={container} initial="hidden" animate="show" className="grid-2 mb-6">
+        <motion.div variants={item} className="card">
           <div className="section-title"><Flame size={16} /> Activity Streak</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <span className="stat-value text-amber">{streak}</span>
             <span className="text-muted">day{streak === 1 ? '' : 's'} active</span>
           </div>
           <p className="text-muted" style={{ marginTop: 8, fontSize: '0.82rem' }}>Saved tasks, notes, grades, or study activity keep the streak alive.</p>
-        </div>
-        <div className="card">
+        </motion.div>
+        <motion.div variants={item} className="card">
           <div className="section-title"><AlertTriangle size={16} /> Deadline Countdown</div>
           {nearestTask ? (
             <>
@@ -250,8 +263,8 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
           ) : (
             <div className="empty-state" style={{ padding: 18 }}>No dated tasks yet</div>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {studyPlan && (
         <div className="card mb-6">
@@ -260,14 +273,20 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
         </div>
       )}
 
-      <div className="grid-3 mb-6">
-        <CircularProgress value={cgpa.toFixed(2)} max={10} color="var(--violet)" label="Cumulative GPA" subLabel="Based on completed semesters" icon={Calculator} onClick={() => onNavigate?.('gpa')} />
-        <CircularProgress value={avgAtt} max={100} color={avgAtt < 75 ? 'var(--red)' : 'var(--mint)'} label="Avg Attendance" subLabel={`${totalPresent} / ${totalClasses} Classes Present`} icon={BarChart3} isPercent onClick={() => onNavigate?.('attendance')} />
-        <CircularProgress value={taskPercent} max={100} color="var(--amber)" label="Task Completion" subLabel={`${doneTasks} / ${totalTasks} Tasks Done - ${overdueTasks.length} Overdue`} icon={CheckSquare} isPercent onClick={() => onNavigate?.('tasks')} />
-      </div>
+      <motion.div variants={container} initial="hidden" animate="show" className="grid-3 mb-6">
+        <motion.div variants={item}>
+          <CircularProgress value={cgpa.toFixed(2)} max={10} color="var(--violet)" label="Cumulative GPA" subLabel="Based on completed semesters" icon={Calculator} onClick={() => onNavigate?.('gpa')} />
+        </motion.div>
+        <motion.div variants={item}>
+          <CircularProgress value={avgAtt} max={100} color={avgAtt < 75 ? 'var(--red)' : 'var(--mint)'} label="Avg Attendance" subLabel={`${totalPresent} / ${totalClasses} Classes Present`} icon={BarChart3} isPercent onClick={() => onNavigate?.('attendance')} />
+        </motion.div>
+        <motion.div variants={item}>
+          <CircularProgress value={taskPercent} max={100} color="var(--amber)" label="Task Completion" subLabel={`${doneTasks} / ${totalTasks} Tasks Done - ${overdueTasks.length} Overdue`} icon={CheckSquare} isPercent onClick={() => onNavigate?.('tasks')} />
+        </motion.div>
+      </motion.div>
 
-      <div className="grid-2 mb-6">
-        <div className="card">
+      <motion.div variants={container} initial="hidden" animate="show" className="grid-2 mb-6">
+        <motion.div variants={item} className="card">
           <div className="section-title"><CheckSquare size={16} /> Upcoming Tasks</div>
           {todoTasks.length === 0 ? <div className="empty-state" style={{ padding: '16px' }}>No pending tasks</div> : (
             todoTasks.map(t => (
@@ -279,9 +298,9 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
               </div>
             ))
           )}
-        </div>
+        </motion.div>
 
-        <div className="card">
+        <motion.div variants={item} className="card">
           <div className="section-title"><Clock size={16} /> Recent Activity</div>
           {db.recentActivity.slice(0, 6).map((a, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, padding: '6px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
@@ -292,8 +311,8 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
               </div>
             </div>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       <div className="card mb-6">
         <div className="section-title"><Activity size={16} /> Productivity Heatmap (120 days)</div>
