@@ -207,7 +207,7 @@ export default function GPA() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <h1 style={{ fontWeight: 800, fontSize: '1.75rem', letterSpacing: '-0.03em', marginBottom: 4 }}>GPA Calculator</h1>
+          <StyledText text="GPA Calculator" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
           <p style={{ color: 'var(--text3)', fontSize: '0.82rem' }}>Track your academic performance semester by semester</p>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>

@@ -10,6 +10,7 @@ import { useDB, calcAttendance, calcCGPA } from './store';
 
 import CommandPalette from './components/CommandPalette';
 import ToastContainer from './components/Toast';
+import StyledText from './components/StyledText';
 
 const Dashboard = lazy(() => import('./panels/Dashboard'));
 const AIChat = lazy(() => import('./panels/AIChat'));
@@ -173,7 +174,7 @@ export default function Shell() {
           {/* Header */}
           <div className="header">
             <div className="header-title" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span className="highlight-word" style={{ fontSize: '1.6rem', background: 'none', WebkitTextFillColor: 'initial', fontWeight: 400 }}>{panelLabel}</span>
+              <StyledText text={panelLabel} style={{ fontSize: '1.6rem' }} />
               
               {/* Dynamic GPA Capsule */}
               {cgpa > 0 && (

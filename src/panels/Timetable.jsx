@@ -57,7 +57,7 @@ export default function Timetable() {
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, gap: 12, flexWrap: 'wrap' }}>
-        <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Weekly Timetable</h1>
+        <StyledText text="Weekly Timetable" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="badge badge-violet">Today: {today}</span>
           <button className="btn btn-secondary btn-sm" onClick={askOptimizer} disabled={suggestionLoading}>

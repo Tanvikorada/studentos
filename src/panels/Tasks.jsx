@@ -84,7 +84,7 @@ export default function Tasks() {
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Tasks & Schedule</h1>
+        <StyledText text="Tasks & Schedule" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
         <button className="btn btn-primary" onClick={() => setAdding(true)}>
           <Plus size={16} /> Add Task
         </button>

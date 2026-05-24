@@ -103,7 +103,7 @@ export default function Attendance() {
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Attendance Tracker</h1>
+        <StyledText text="Attendance Tracker" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={() => quickMarkAll('p')}><CheckCircle size={16} /> Mark All Present</button>
           <button className="btn btn-secondary" onClick={() => quickMarkAll('a')}><XCircle size={16} /> Mark All Absent</button>

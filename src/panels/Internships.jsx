@@ -30,7 +30,7 @@ export default function Internships() {
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Internship Tracker</h1>
+        <StyledText text="Internship Tracker" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
         <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add Application</button>
       </div>
 

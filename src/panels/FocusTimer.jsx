@@ -113,7 +113,7 @@ export default function FocusTimer() {
 
   return (
     <div className={`animate-fade ${running ? 'focus-ambient' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28, paddingTop: 32 }}>
-      <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Focus Timer</h1>
+      <StyledText text="Focus Timer" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
 
       <div style={{ display: 'flex', gap: 8, background: 'var(--surface2)', padding: 4, borderRadius: 10, border: '1px solid var(--border)' }}>
         {MODES.map(m => (

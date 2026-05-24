@@ -38,7 +38,7 @@ export default function GitHubTracker() {
 
   return (
     <div className="animate-fade">
-      <h1 style={{ fontWeight: 700, fontSize: '1.25rem', marginBottom: 24 }}>GitHub Tracker</h1>
+      <StyledText text="GitHub Tracker" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
 
       <div className="card mb-6">
         <div style={{ display: 'flex', gap: 10 }}>

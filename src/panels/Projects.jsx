@@ -40,7 +40,7 @@ export default function Projects() {
   return (
     <div className="animate-fade">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h1 style={{ fontWeight: 700, fontSize: '1.25rem' }}>Projects</h1>
+        <StyledText text="Projects" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
         <button className="btn btn-primary" onClick={() => { setAdding(true); setEditing(null); setForm({ name: '', desc: '', tech: '', progress: 0, repo: '', live: '' }); }}>
           <Plus size={16} /> New Project
         </button>

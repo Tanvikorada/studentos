@@ -132,7 +132,7 @@ Return:
 
   return (
     <div className="animate-fade" style={{ maxWidth: 900, margin: '0 auto', paddingBottom: '40px' }}>
-      <h1 style={{ fontWeight: 800, fontSize: '1.75rem', letterSpacing: '-0.03em', marginBottom: 24 }}>Career & Placement AI Predictor</h1>
+      <StyledText text="Career & Placement AI Predictor" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
       
       <div className="grid-2" style={{ gap: 24, alignItems: 'start' }}>
         <div className="card" style={{ padding: '24px', background: 'rgba(255,255,255,0.01)' }}>
