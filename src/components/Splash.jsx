@@ -1,6 +1,12 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 export default function Splash({ onDone }) {
+  useEffect(() => {
+    const timer = setTimeout(onDone, 2400);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
   return (
     <motion.div
       style={{
@@ -11,7 +17,6 @@ export default function Splash({ onDone }) {
       initial={{ opacity: 1 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
-      onAnimationComplete={() => setTimeout(onDone, 2400)}
     >
       <div style={{ textAlign: 'center' }}>
         <motion.div
