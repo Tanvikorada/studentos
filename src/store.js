@@ -204,13 +204,14 @@ function generateProductivityData() {
 }
 
 function saveDB() {
-  if (!SECRET_KEY) return;
-  try {
-    const jsonString = JSON.stringify(db);
-    const encrypted = CryptoJS.AES.encrypt(jsonString, SECRET_KEY).toString();
-    localStorage.setItem(STORAGE_KEY, encrypted);
-  } catch (e) {
-    console.error('Save failed:', e);
+  if (SECRET_KEY) {
+    try {
+      const jsonString = JSON.stringify(db);
+      const encrypted = CryptoJS.AES.encrypt(jsonString, SECRET_KEY).toString();
+      localStorage.setItem(STORAGE_KEY, encrypted);
+    } catch (e) {
+      console.error('Save failed:', e);
+    }
   }
   stateListeners.forEach(fn => fn(db));
 }

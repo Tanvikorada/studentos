@@ -4,6 +4,7 @@ import Splash from './components/Splash';
 import AuthScreen from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
 import Shell from './Shell';
+import { unlockDB } from './store';
 import './index.css';
 
 const RETURNING_KEY = 'studentos_returning';
@@ -22,6 +23,7 @@ export default function App() {
   const handleAuthLocal = () => {
     const isNew = !localStorage.getItem(RETURNING_KEY);
     localStorage.setItem(RETURNING_KEY, '1');
+    unlockDB('local_sandbox');
     setPhase(isNew ? 'onboarding' : 'app');
   };
 
