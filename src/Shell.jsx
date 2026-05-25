@@ -11,6 +11,7 @@ import { useDB, calcAttendance, calcCGPA } from './store';
 import CommandPalette from './components/CommandPalette';
 import ToastContainer from './components/Toast';
 import StyledText from './components/StyledText';
+import VoiceOS from './components/VoiceOS';
 
 const Dashboard = lazy(() => import('./panels/Dashboard'));
 const AIChat = lazy(() => import('./panels/AIChat'));
@@ -26,7 +27,7 @@ const Projects = lazy(() => import('./panels/Projects'));
 const CareerPredictor = lazy(() => import('./panels/CareerPredictor'));
 const CertsSkills = lazy(() => import('./panels/CertsSkills'));
 const GitHubTracker = lazy(() => import('./panels/GitHubTracker'));
-const ResumeBuilder = lazy(() => import('./panels/misc').then(m => ({ default: m.ResumeBuilder })));
+const ResumeBuilder = lazy(() => import('./panels/ResumeBuilder'));
 const Portfolio = lazy(() => import('./panels/misc').then(m => ({ default: m.Portfolio })));
 const MockInterview = lazy(() => import('./panels/misc').then(m => ({ default: m.MockInterview })));
 const MarketTrends = lazy(() => import('./panels/misc').then(m => ({ default: m.MarketTrends })));
@@ -296,6 +297,7 @@ export default function Shell() {
       </AnimatePresence>
       <CommandPalette isOpen={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={setPanel} />
       <ToastContainer />
+      <VoiceOS onNavigate={setPanel} />
     </div>
   );
 }
