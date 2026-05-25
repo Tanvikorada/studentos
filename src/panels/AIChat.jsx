@@ -38,6 +38,7 @@ function fileToDataUrl(file) {
 
 export default function AIChat({ compact = false }) {
   const db = useDB();
+  const theme = db.settings?.theme || 'chatgpt-style';
   const [thread, setThread] = useState('general');
   const [messages, setMessages] = useState(() => db.chatThreads?.general || db.chatHistory || []);
   const [input, setInput] = useState('');
@@ -127,7 +128,7 @@ Format with clear markdown. Be concise when the user asks a small question and d
   };
 
   return (
-    <div className={`chat-container ${compact ? 'compact' : ''} animate-fade`}>
+    <div className={`chat-container ${compact ? 'compact' : ''} ${theme} animate-fade`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
         {!compact && (
           <div className="thread-tabs">
@@ -169,11 +170,16 @@ Format with clear markdown. Be concise when the user asks a small question and d
         {messages.map((m, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', alignItems: m.role === 'user' ? 'flex-end' : 'flex-start', gap: 6 }}>
             {m.role === 'assistant' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 22, height: 22, background: 'linear-gradient(135deg,var(--violet),var(--mint))', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="chat-ai-header" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div className="ai-avatar-box">
                   <Bot size={12} color="#fff" />
                 </div>
-                <span style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>AI Assistant</span>
+                <span className="ai-name-label">StudentOS</span>
+              </div>
+            )}
+            {m.role === 'user' && (
+              <div className="chat-user-header" style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'flex-end', width: '100%' }}>
+                <span className="user-name-label">You</span>
               </div>
             )}
             <div className={`chat-bubble ${m.role === 'user' ? 'user' : 'ai'}`}>

@@ -100,214 +100,183 @@ export default function Shell() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(o => !o); }
     };
     window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, []);
+    
+  const theme = db.settings?.theme || 'chatgpt-style';
 
-  const ActivePanel = PANELS[panel] || Dashboard;
-  const panelLabel = panel === 'settings' ? 'Settings' : PANEL_LABELS[panel] || 'Dashboard';
-  const unreadNotifications = (db.notifications || []).filter(n => !n.read);
-
-  // Calculate live stats
-  const semesters = db.gpa?.semesters || [];
-  const cgpa = parseFloat(calcCGPA(semesters)) || 0;
-
-  const attRecords = db.attendance || [];
-  let totalPresent = 0;
-  let totalClasses = 0;
-  attRecords.forEach(subj => {
-    const { present, total } = calcAttendance(subj.records);
-    totalPresent += present;
-    totalClasses += total;
-  });
-  const avgAttendance = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 100;
-
-  return (
-    <div className="shell">
-      {/* Sidebar */}
-      <nav className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, var(--violet), var(--mint))', color: '#fff', flexShrink: 0 }}>
-            <GraduationCap size={18} strokeWidth={2.5} />
-          </div>
-          {!collapsed && (
-            <span className="sidebar-title highlight-word" style={{ fontSize: '1.3rem', background: 'none', WebkitTextFillColor: 'initial' }}>
-              Student<span className="letter-hl">OS</span>
-            </span>
-          )}
-          <button className="btn btn-ghost btn-icon" onClick={() => setCollapsed(c => !c)}
-            style={{ marginLeft: 'auto', color: 'var(--text3)', flexShrink: 0 }}>
-            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+  const renderChatGPTLayout = () => (
+    <div className="chatgpt-layout">
+      <nav className={`cgpt-sidebar ${collapsed ? 'collapsed' : ''}`}>
+        <div className="cgpt-sidebar-header">
+          <button className="cgpt-new-chat-btn" onClick={() => setPanel('chat')}>
+            <div className="icon-box"><GraduationCap size={16} color="#fff" /></div>
+            {!collapsed && <span>New chat</span>}
+          </button>
+          <button className="cgpt-collapse-btn" onClick={() => setCollapsed(c => !c)}>
+            <ChevronLeft size={16} />
           </button>
         </div>
+        
+        <div className="cgpt-nav">
+          {NAV.flatMap(g => g.items).map(item => (
+            <div key={item.id} className={`cgpt-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)} title={collapsed ? item.label : ''}>
+              <item.icon size={16} />
+              {!collapsed && <span>{item.label}</span>}
+            </div>
+          ))}
+        </div>
 
-        <div className="sidebar-nav">
+        <div className="cgpt-sidebar-footer">
+           <div className="cgpt-nav-item" onClick={() => setPanel('settings')}>
+             <Settings size={16}/>
+             {!collapsed && <span>Settings</span>}
+           </div>
+           <div className="cgpt-user-item" onClick={() => setPanel('profile')}>
+             <div className="cgpt-avatar">{db.profile.name?.[0] || 'S'}</div>
+             {!collapsed && <span className="cgpt-username">{db.profile.name || 'Student'}</span>}
+           </div>
+        </div>
+      </nav>
+      
+      <div className="cgpt-main">
+        <div className="cgpt-mobile-header">
+           <button onClick={() => setCollapsed(c => !c)}><ChevronRight size={20}/></button>
+           <span>{panelLabel}</span>
+        </div>
+        
+        <div className="cgpt-content-wrapper">
+          <AnimatePresence mode="wait">
+            <motion.div key={panel} className="cgpt-content-inner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <Suspense fallback={<div className="empty-state">Loading...</div>}>
+                <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} />
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderClaudeLayout = () => (
+    <div className="claude-layout">
+      <nav className={`claude-sidebar ${collapsed ? 'collapsed' : ''}`}>
+        <div className="claude-sidebar-header">
+          <div className="claude-logo"><GraduationCap size={16}/> {!collapsed && <span>StudentOS</span>}</div>
+          <button className="claude-collapse-btn" onClick={() => setCollapsed(c => !c)}><ChevronLeft size={16}/></button>
+        </div>
+        <div className="claude-nav-container">
+          <div className="claude-nav-btn new-chat" onClick={() => setPanel('chat')}>
+            <MessageSquare size={14}/> {!collapsed && <span>New chat</span>}
+          </div>
           {NAV.map(group => (
-            <div key={group.group} className="nav-group">
-              <div className="nav-group-label">{group.group}</div>
+            <div key={group.group} className="claude-nav-group">
+              {!collapsed && <div className="claude-group-label">{group.group}</div>}
               {group.items.map(item => (
-                <div key={item.id} className={`nav-item ${panel === item.id ? 'active' : ''}`}
-                  onClick={() => setPanel(item.id)} title={collapsed ? item.label : ''}>
-                  <item.icon className="nav-icon" />
-                  <span className="nav-label">{item.label}</span>
+                <div key={item.id} className={`claude-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)}>
+                  <item.icon size={14} />
+                  {!collapsed && <span>{item.label}</span>}
                 </div>
               ))}
             </div>
           ))}
         </div>
-
-        <div className="sidebar-footer">
-          <div className={`nav-item ${panel === 'settings' ? 'active' : ''}`} onClick={() => setPanel('settings')} title="Settings">
-            <Settings className="nav-icon" />
-            <span className="nav-label">Settings</span>
-          </div>
+        <div className="claude-sidebar-footer">
+           <div className="claude-settings-item" onClick={() => setPanel('settings')}><Settings size={14}/> {!collapsed && <span>Settings</span>}</div>
+           <div className="claude-user-item" onClick={() => setPanel('profile')}>
+             <div className="claude-avatar">{db.profile.name?.[0] || 'S'}</div>
+             {!collapsed && <span>{db.profile.name || 'Student'}</span>}
+           </div>
         </div>
       </nav>
+      <div className="claude-main">
+         <AnimatePresence mode="wait">
+            <motion.div key={panel} className="claude-content-inner" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}>
+              <Suspense fallback={<div className="empty-state">Loading...</div>}>
+                <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} />
+              </Suspense>
+            </motion.div>
+         </AnimatePresence>
+      </div>
+    </div>
+  );
 
-      {/* Main & AI Split Container */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
-        {/* Main Canvas */}
-        <div className="main">
-          {/* Header */}
-          <div className="header">
-            <div className="header-title" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <StyledText text={panelLabel} style={{ fontSize: '1.6rem' }} />
-              
-              {/* Dynamic GPA Capsule */}
-              {cgpa > 0 && (
-                <div className="header-badge info">
-                  <Calculator size={12} />
-                  <span>{cgpa.toFixed(2)} CGPA</span>
-                </div>
-              )}
-
-              {/* Dynamic Attendance Capsule */}
-              {attRecords.length > 0 && (
-                <div className={`header-badge ${avgAttendance < 75 ? 'warning animate-pulse' : 'success'}`}>
-                  <BarChart3 size={12} />
-                  <span>{avgAttendance}% Attendance</span>
-                </div>
-              )}
-
-              {/* XP and Level Capsule */}
-              <div className="header-badge info" style={{ background: 'var(--violet2)', color: 'white' }}>
-                <Award size={12} />
-                <span>Lv {db.level || 1} • {db.xp || 0} XP</span>
-              </div>
+  const renderGeminiLayout = () => (
+    <div className="gemini-layout">
+      <nav className={`gemini-sidebar ${collapsed ? 'collapsed' : ''}`}>
+        <div className="gemini-sidebar-header">
+          <button className="gemini-menu-btn" onClick={() => setCollapsed(c => !c)}><ChevronLeft size={20}/></button>
+          {!collapsed && <span className="gemini-logo">StudentOS</span>}
+        </div>
+        <div className="gemini-nav">
+           <button className="gemini-new-chat" onClick={() => setPanel('chat')}>
+             <Sparkles size={20}/> {!collapsed && <span>New chat</span>}
+           </button>
+           {NAV.flatMap(g => g.items).map(item => (
+            <div key={item.id} className={`gemini-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)}>
+              <item.icon size={20} />
+              {!collapsed && <span>{item.label}</span>}
             </div>
-
-            <div className="header-actions">
-              {/* Search Bar */}
-              <button className="btn btn-secondary btn-sm" onClick={() => setCmdOpen(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text3)' }}>
-                <Search size={14} />
-                <span>Search</span>
-                <kbd style={{ fontSize: '0.65rem', padding: '1px 5px', background: 'var(--surface3)', borderRadius: 4, fontFamily: 'monospace' }}>⌘K</kbd>
-              </button>
-
-              {/* AI Copilot Sidebar Toggle */}
-              <button
-                className={`btn btn-sm ${aiOpen ? 'btn-primary' : 'btn-secondary'}`}
-                onClick={() => setAiOpen(o => !o)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                <Sparkles size={14} className={aiOpen ? 'animate-spin' : ''} />
-                <span>Copilot</span>
-              </button>
-
-              <div style={{ position: 'relative' }}>
-                <button
-                  className="btn btn-secondary btn-icon"
-                  onClick={() => setNotificationsOpen(o => !o)}
-                  title="Notifications"
-                  style={{ position: 'relative' }}
-                >
-                  <Bell size={16} />
-                  {unreadNotifications.length > 0 && (
-                    <span className="notification-dot">{Math.min(unreadNotifications.length, 9)}</span>
-                  )}
-                </button>
-                {notificationsOpen && (
-                  <div className="notification-menu">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <strong>Notifications</strong>
-                      <span className="text-faint" style={{ fontSize: '0.75rem' }}>{unreadNotifications.length} unread</span>
-                    </div>
-                    {(db.notifications || []).length === 0 ? (
-                      <div className="empty-state" style={{ padding: 18 }}>No alerts yet</div>
-                    ) : (
-                      (db.notifications || []).slice(0, 6).map(n => (
-                        <div key={n.id} className={`notification-item ${n.read ? '' : 'unread'}`}>
-                          <div style={{ fontWeight: 700, fontSize: '0.82rem' }}>{n.title}</div>
-                          <div className="text-muted" style={{ fontSize: '0.74rem', marginTop: 4 }}>{n.body}</div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* User Avatar */}
-              <div 
-                onClick={() => setPanel('profile')}
-                style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg,var(--violet),var(--mint))', display: 'flex', alignItems: 'center', justifycontent: 'center', display: 'flex', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#fff', cursor: 'pointer', transition: 'transform 0.2s' }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                {db.profile.name?.[0] || 'S'}
-              </div>
-            </div>
-          </div>
-
-          {/* Content Canvas */}
-          <div className="content">
-            <AnimatePresence mode="wait">
-              <motion.div key={panel}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.2 }}>
-                <Suspense fallback={<div className="empty-state">Loading panel...</div>}>
+           ))}
+        </div>
+        <div className="gemini-sidebar-footer">
+           <div className="gemini-nav-item" onClick={() => setPanel('settings')}>
+              <Settings size={20} />
+              {!collapsed && <span>Settings</span>}
+           </div>
+        </div>
+      </nav>
+      <div className="gemini-main">
+        <header className="gemini-header">
+           <div className="gemini-header-title">{panelLabel}</div>
+           <div className="gemini-header-actions">
+             {cgpa > 0 && <span className="gemini-badge">{cgpa.toFixed(2)} CGPA</span>}
+             <div className="gemini-avatar" onClick={() => setPanel('profile')}>{db.profile.name?.[0] || 'S'}</div>
+           </div>
+        </header>
+        <div className="gemini-content-inner">
+           <AnimatePresence mode="wait">
+              <motion.div key={panel} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <Suspense fallback={<div className="empty-state">Loading...</div>}>
                   <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} />
                 </Suspense>
               </motion.div>
-            </AnimatePresence>
-          </div>
+           </AnimatePresence>
         </div>
-
-        {/* Persistent Right AI Assistant Drawer */}
-        <AnimatePresence>
-          {aiOpen && (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 360, opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="ai-panel"
-            >
-              <div className="ai-panel-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Sparkles size={16} className="text-violet" />
-                  <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>AI Study Copilot</span>
-                </div>
-                <button onClick={() => setAiOpen(false)} className="btn btn-ghost btn-icon" style={{ padding: 4, minWidth: 28, height: 28 }}>
-                  <X size={16} />
-                </button>
-              </div>
-              <div style={{ flex: 1, overflowY: 'hidden', padding: '0 20px 20px' }}>
-                <Suspense fallback={<div className="empty-state">Loading copilot...</div>}>
-                  <AIChat compact={true} />
-                </Suspense>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+    </div>
+  );
 
-      {/* Command Palette */}
-      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={setPanel} />
-
-      {/* Toasts */}
+  return (
+    <div className="shell-wrapper">
+      {theme === 'chatgpt-style' ? renderChatGPTLayout() : theme === 'claude-style' ? renderClaudeLayout() : renderGeminiLayout()}
+      
+      {/* Persistent Copilot */}
+      <AnimatePresence>
+        {aiOpen && (
+          <motion.div
+            initial={{ x: 360, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 360, opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 220 }}
+            className="ai-panel-overlay"
+          >
+            <div className="ai-panel-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Sparkles size={16} />
+                <span style={{ fontWeight: 700 }}>Copilot</span>
+              </div>
+              <button onClick={() => setAiOpen(false)} className="btn btn-ghost btn-icon" style={{color: 'var(--text)'}}><X size={16} /></button>
+            </div>
+            <div className="ai-panel-body">
+               <Suspense fallback={<div className="empty-state">Loading copilot...</div>}>
+                  <AIChat compact={true} />
+               </Suspense>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <CommandPalette isOpen={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={setPanel} />
       <ToastContainer />
     </div>
   );
+
 }
