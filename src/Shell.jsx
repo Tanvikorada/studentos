@@ -100,8 +100,28 @@ export default function Shell() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(o => !o); }
     };
     window.addEventListener('keydown', h);
-    
-  const theme = db.settings?.theme || 'chatgpt-style';
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  const ActivePanel = PANELS[panel] || Dashboard;
+  const panelLabel = panel === 'settings' ? 'Settings' : PANEL_LABELS[panel] || 'Dashboard';
+  const unreadNotifications = (db.notifications || []).filter(n => !n.read);
+
+  // Calculate live stats
+  const semesters = db.gpa?.semesters || [];
+  const cgpa = parseFloat(calcCGPA(semesters)) || 0;
+
+  const attRecords = db.attendance || [];
+  let totalPresent = 0;
+  let totalClasses = 0;
+  attRecords.forEach(subj => {
+    const { present, total } = calcAttendance(subj.records);
+    totalPresent += present;
+    totalClasses += total;
+  });
+  const avgAttendance = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 100;
+
+    const theme = db.settings?.theme || 'chatgpt-style';
 
   const renderChatGPTLayout = () => (
     <div className="chatgpt-layout">
@@ -278,5 +298,4 @@ export default function Shell() {
       <ToastContainer />
     </div>
   );
-
 }
