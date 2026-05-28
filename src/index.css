@@ -2958,53 +2958,58 @@ select.input option {
   html, body { overflow: hidden; width: 100vw; height: 100dvh; }
 
   /* Auth Screen - Rich Mobile Design */
-  .auth-screen { 
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .auth-art { 
-    display: flex !important;
-    grid-column: 1;
-    grid-row: 1;
-    z-index: 0;
-    opacity: 0.6; /* Dim to let form be readable */
-    pointer-events: none; /* Let clicks pass to form if needed */
-    align-items: flex-end;
-    justify-content: center;
-    transform: scale(0.85) translateY(20%); /* Fit characters nicely in background */
-  }
-  
-  /* Hide the text below the characters on mobile */
-  .auth-art > div:nth-child(3),
-  .auth-art > div:nth-child(4) {
-    display: none !important;
-  }
-
-  .auth-form { 
-    grid-column: 1;
-    grid-row: 1;
-    z-index: 10;
-    padding: 32px 20px 40px; 
-    align-items: center; /* Center the form horizontally */
-    overflow-y: auto; 
-    background: rgba(18, 18, 18, 0.45);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-  }
-  
-  .auth-form-inner { 
-    max-width: 100%; 
-    width: 100%;
-    background: rgba(30, 30, 30, 0.85);
-    padding: 32px 24px;
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  }
+    .auth-screen { 
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg);
+    }
+    
+    .auth-art { 
+      display: flex !important;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 40vh;
+      z-index: 0;
+      opacity: 0.85; 
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+      transform: scale(0.7) translateY(-10%);
+      background: linear-gradient(180deg, var(--bg) 0%, transparent 100%);
+      border: none;
+    }
+    
+    .auth-form { 
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 65vh;
+      z-index: 10;
+      padding: 32px 20px 40px; 
+      align-items: flex-start;
+      overflow-y: auto; 
+      background: rgba(15, 15, 20, 0.65);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 32px 32px 0 0;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.4);
+    }
+    
+    .auth-form-inner { 
+      max-width: 100%; 
+      width: 100%;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      border: none;
+      box-shadow: none;
+    }
 
   /* Modal as bottom sheet */
   .modal-overlay { align-items: flex-end; padding: 0; }
