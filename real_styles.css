@@ -1,0 +1,82 @@
+
+/* ================================
+   STRUCTURAL REAL STYLES
+   ================================ */
+
+/* ChatGPT Real Style */
+[data-theme="chatgpt-style"] .sidebar {
+  background: #171717;
+  border-right: none;
+}
+[data-theme="chatgpt-style"] .nav-item.active {
+  background: #212121;
+  color: #ececec;
+  border-left: none;
+  border-radius: 8px;
+}
+[data-theme="chatgpt-style"] .card {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: none;
+}
+[data-theme="chatgpt-style"] .input {
+  background: #2f2f2f;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Claude Real Style */
+[data-theme="claude-style"] .sidebar {
+  background: #f3f1eb;
+  border-right: 1px solid #e5e3db;
+}
+[data-theme="claude-style"] .nav-item.active {
+  background: #eae7df;
+  color: #2a2825;
+  font-weight: 600;
+  border-left: none;
+  border-radius: 6px;
+}
+[data-theme="claude-style"] .card {
+  background: #ffffff;
+  border: 1px solid #e5e3db;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  border-radius: 12px;
+}
+[data-theme="claude-style"] .input {
+  background: #ffffff;
+  border: 1px solid #e5e3db;
+}
+[data-theme="claude-style"] .main-content h1, 
+[data-theme="claude-style"] .main-content h2, 
+[data-theme="claude-style"] .main-content h3,
+[data-theme="claude-style"] .styled-heading {
+  font-family: 'Instrument Serif', Georgia, serif;
+}
+
+/* Gemini Real Style */
+[data-theme="gemini-style"] .sidebar {
+  background: #f0f4f9;
+  border-right: none;
+}
+[data-theme="gemini-style"] .nav-item.active {
+  background: #d3e3fd;
+  color: #041e49;
+  border-radius: 99px;
+  border-left: none;
+}
+[data-theme="gemini-style"] .card {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  border-radius: 24px;
+}
+[data-theme="gemini-style"] .input {
+  background: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 99px;
+  padding: 12px 20px;
+}
+[data-theme="gemini-style"] .btn {
+  border-radius: 99px;
+}

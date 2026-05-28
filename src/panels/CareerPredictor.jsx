@@ -60,13 +60,27 @@ export default function CareerPredictor() {
   const runGapAnalysis = async () => {
     setLoading(true);
     try {
-      const prompt = `Analyze user profile: GPA ${radarData.datasets[0].data[0].toFixed(1)}/10, Projects ${radarData.datasets[0].data[1]}, Skills ${radarData.datasets[0].data[2]}, Internships ${radarData.datasets[0].data[3]}, Certifications ${radarData.datasets[0].data[4]}. Provide a concise, harsh but actionable gap analysis for getting a FAANG software engineering job. Give 3 bullet points on what to improve.`;
-      const text = await callGroq([{ role: 'user', content: prompt }]);
-      setGapAnalysis(text);
+      const prompt = `Analyze user profile: GPA ${radarData.datasets[0].data[0].toFixed(1)}/10, Projects ${radarData.datasets[0].data[1]}, Skills ${radarData.datasets[0].data[2]}, Internships ${radarData.datasets[0].data[3]}, Certifications ${radarData.datasets[0].data[4]}.
+Provide a harsh but realistic FAANG software engineering evaluation.
+Return ONLY valid JSON:
+{
+  "scores": [gpa, projects, skills, internships, certs], // your realistic score out of 10 for each
+  "target": [9.5, 9, 8, 7, 8], // standard FAANG target out of 10
+  "gaps": ["bullet 1", "bullet 2", "bullet 3"] // 3 harsh actionable tips
+}`;
+      const text = await aiAnalyze({}, prompt);
+      const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const json = JSON.parse(jsonStr);
+
+      const newData = { ...defaultRadarData };
+      newData.datasets[0].data = json.scores;
+      newData.datasets[1].data = json.target;
+      setRadarData(newData);
+      setGapAnalysis(json.gaps.map(g => `• ${g}`).join('\n\n'));
       toast.success('Gap Analysis Complete!');
     } catch (e) {
       console.error(e);
-      toast.error('Gap analysis failed');
+      toast.error('Gap analysis failed or returned invalid format.');
     } finally {
       setLoading(false);
     }
@@ -85,14 +99,27 @@ export default function CareerPredictor() {
   };
 
   const importLinkedInText = async () => {
-    if (!linkedinText.trim() && !linkedinUrl.trim()) { toast.error('Paste a profile URL or public profile text'); return; }
-    const result = await aiAnalyze({ linkedinUrl, linkedinText }, 'Extract likely name, company, role, and networking angle from this public LinkedIn/profile text. Return concise JSON-like fields plus a short relationship strategy.');
-    setNetworkCoach(result);
-    mutateDB(d => {
-      d.linkedinData.url = linkedinUrl;
-      d.linkedinData.importedText = linkedinText;
-      d.linkedinData.lastAnalyzed = new Date().toISOString();
-    }, 'Analyzed LinkedIn profile text');
+    if (!linkedinText.trim()) { toast.error('Paste public profile text'); return; }
+    const prompt = `Analyze this raw LinkedIn text. Extract the person's name, company, role, and a networking strategy.
+Return ONLY valid JSON:
+{
+  "name": "Name",
+  "company": "Company",
+  "role": "Role",
+  "strategy": "Networking strategy based on their profile..."
+}`;
+    toast.success('Analyzing LinkedIn text...');
+    try {
+      const text = await aiAnalyze({ linkedinText }, prompt);
+      const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const json = JSON.parse(jsonStr);
+      setNetworkCoach(json.strategy || 'No strategy generated.');
+      setNetworkForm(f => ({ ...f, name: json.name || f.name, company: json.company || f.company, role: json.role || f.role }));
+      setAddingNetwork(true);
+      toast.success('Contact fields auto-filled!');
+    } catch (e) {
+      toast.error('Failed to parse LinkedIn text');
+    }
   };
 
   const moveContact = (id, status) => {
@@ -187,13 +214,11 @@ Return:
         </div>
 
         <div className="card mb-4">
-          <div className="section-title"><LinkIcon size={16} /> LinkedIn-Safe Import</div>
-          <div className="grid-2">
-            <input className="input" placeholder="Public profile URL" value={linkedinUrl} onChange={e => setLinkedinUrl(e.target.value)} />
-            <button className="btn btn-secondary" onClick={importLinkedInText}>Analyze Profile Text</button>
-          </div>
-          <textarea className="input" rows={4} style={{ marginTop: 10 }} placeholder="Paste public profile/about/experience text here. No scraping required." value={linkedinText} onChange={e => setLinkedinText(e.target.value)} />
-          {networkCoach && <p className="text-muted" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, marginTop: 12 }}>{networkCoach}</p>}
+          <div className="section-title"><Sparkles size={16} /> AI Magic Import</div>
+          <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 12 }}>Paste text from a LinkedIn profile or resume. The AI will extract their details and auto-fill the contact form.</p>
+          <textarea className="input" rows={4} placeholder="Paste public profile/about/experience text here. No scraping required." value={linkedinText} onChange={e => setLinkedinText(e.target.value)} />
+          <button className="btn btn-secondary mt-2" style={{ marginTop: 10 }} onClick={importLinkedInText}>Extract with AI</button>
+          {networkCoach && <div className="mt-3" style={{ marginTop: 14, background: 'rgba(255,255,255,0.02)', padding: 16, borderRadius: 8 }}><strong style={{ color: 'var(--amber)' }}><Zap size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /> AI Strategy:</strong> <p className="text-muted" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, marginTop: 8 }}>{networkCoach}</p></div>}
         </div>
 
         {addingNetwork && (

@@ -2,10 +2,10 @@
 // localStorage-backed state with pub/sub
 
 import { useState, useEffect } from 'react';
-import CryptoJS from 'crypto-js';
+import { auth, signOut, onAuthStateChanged, db as firestoreDB, doc, setDoc, getDoc, onSnapshot } from './firebase';
 
 const STORAGE_KEY = 'studentos_db';
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 let SECRET_KEY = null;
 
 const defaultDB = {
@@ -62,10 +62,10 @@ const defaultDB = {
   },
   codeSnippets: [],
   settings: {
-    groqApiKey: '',
     theme: 'chatgpt-style',
     notificationsEnabled: false,
     onboardingComplete: false,
+    aiProvider: 'openai',
   },
   productivity: [], // activity heatmap data
   studyPlan: {
@@ -143,6 +143,11 @@ function migrateDB(raw) {
   const migrated = mergeDefaults(defaultDB, raw || {});
   migrated.schemaVersion = SCHEMA_VERSION;
 
+  if (migrated.settings?.groqApiKey) {
+    setGroqApiKey(migrated.settings.groqApiKey);
+    delete migrated.settings.groqApiKey;
+  }
+
   migrated.tasks = (migrated.tasks || []).map(normalizeTask);
   migrated.notes = (migrated.notes || []).map(note => ({
     id: note.id || Date.now().toString(),
@@ -158,91 +163,148 @@ function migrateDB(raw) {
     migrated.chatThreads.general = migrated.chatHistory;
   }
 
+  // Wipe fake productivity data introduced before schema version 3
+  if ((raw.schemaVersion || 1) < 3) {
+    migrated.productivity = [];
+  }
+
   return migrated;
 }
 
-function loadDB() {
-  if (!SECRET_KEY) return db || defaultDB;
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        const bytes = CryptoJS.AES.decrypt(saved, SECRET_KEY);
-        const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-        if (decryptedData) {
-          const parsed = JSON.parse(decryptedData);
-          db = migrateDB(parsed);
-        } else {
-          throw new Error('Decryption failed, might be plain text');
-        }
-      } catch (err) {
-        throw new Error('Decryption failed');
-      }
-    } else {
-      db = migrateDB(defaultDB);
-    }
-  } catch (e) {
-    throw e;
-  }
-  if (!db.productivity || db.productivity.length < 50) {
-    db.productivity = generateProductivityData();
-  }
-  return db;
-}
+let firebaseUid = null;
+let saveTimeout = null;
+let unsubscribeSnapshot = null;
+let applyingRemoteSnapshot = false;
 
-function generateProductivityData() {
-  const data = [];
-  const now = new Date();
-  for (let i = 119; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
-    const count = Math.random() < 0.3 ? 0 : Math.floor(Math.random() * 8);
-    if (count > 0) data.push({ date: dateStr, count });
-  }
-  return data;
-}
+
 
 function saveDB() {
-  if (SECRET_KEY) {
-    try {
-      const jsonString = JSON.stringify(db);
-      const encrypted = CryptoJS.AES.encrypt(jsonString, SECRET_KEY).toString();
-      localStorage.setItem(STORAGE_KEY, encrypted);
-    } catch (e) {
-      console.error('Save failed:', e);
-    }
-  }
   stateListeners.forEach(fn => fn(db));
+
+  if (applyingRemoteSnapshot) return;
+  
+  if (firebaseUid) {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+      try {
+        await setDoc(doc(firestoreDB, 'users', firebaseUid), db);
+      } catch (e) {
+        console.error('Failed to sync to cloud', e);
+      }
+    }, 1500); // 1.5s debounce
+  } else if (SECRET_KEY) {
+    // Local fallback
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
 }
 
-export function unlockDB(password) {
+export async function initFirebaseUser(uid, userObj) {
+  firebaseUid = uid;
+  SECRET_KEY = null;
+  const userRef = doc(firestoreDB, 'users', uid);
+  
+  try {
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      db = migrateDB(snap.data());
+    } else {
+      db = migrateDB(defaultDB);
+      if (userObj?.displayName) db.profile.name = userObj.displayName;
+      if (userObj?.email) db.resumeData.basics.email = userObj.email;
+      await setDoc(userRef, db);
+    }
+  } catch(e) {
+    console.error(e);
+    db = migrateDB(defaultDB);
+  }
+  
+  if (!db.productivity) {
+    db.productivity = [];
+  }
+  
+  stateListeners.forEach(fn => fn(db));
+  
+  if (unsubscribeSnapshot) unsubscribeSnapshot();
+  unsubscribeSnapshot = onSnapshot(userRef, (docSnap) => {
+    if (docSnap.exists()) {
+      applyingRemoteSnapshot = true;
+      db = migrateDB(docSnap.data());
+      if (!db.productivity) {
+        db.productivity = [];
+      }
+      stateListeners.forEach(fn => fn(db));
+      applyingRemoteSnapshot = false;
+    }
+  });
+}
+
+export function unlockDB(password, forceNew = false) {
   SECRET_KEY = password;
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      loadDB();
+    if (saved && !forceNew) {
+      db = migrateDB(JSON.parse(saved));
     } else {
-    db = migrateDB(defaultDB);
+      db = migrateDB(defaultDB);
       saveDB();
+    }
+    if (!db.productivity) {
+      db.productivity = [];
     }
     stateListeners.forEach(fn => fn(db));
     return true;
-  } catch (err) {
+  } catch {
     SECRET_KEY = null;
     return false;
   }
 }
 
-export function lockDB() {
+export async function lockDB() {
   SECRET_KEY = null;
-      db = migrateDB(defaultDB);
+  firebaseUid = null;
+  if (unsubscribeSnapshot) {
+    unsubscribeSnapshot();
+    unsubscribeSnapshot = null;
+  }
+  try {
+    await signOut(auth);
+  } catch (e) {
+    console.error('Firebase sign out error:', e);
+  }
+  db = migrateDB(defaultDB);
   stateListeners.forEach(fn => fn(db));
+  toast.info('Workspace locked');
+}
+
+export function isDBUnlocked() {
+  return !!(firebaseUid || SECRET_KEY);
 }
 
 export function getDB() {
   if (!db) db = migrateDB(defaultDB);
   return db;
+}
+
+export function getGroqApiKey() {
+  return getDB().settings?.groqApiKey || '';
+}
+
+export function setGroqApiKey(apiKey) {
+  mutateDB(d => {
+    if (!d.settings) d.settings = {};
+    d.settings.groqApiKey = String(apiKey || '').trim();
+  }, 'Updated Groq API Key');
+}
+
+export function getOpenAIApiKey() {
+  return getDB().settings?.openaiApiKey || '';
+}
+
+export function setOpenAIApiKey(apiKey) {
+  mutateDB(d => {
+    if (!d.settings) d.settings = {};
+    d.settings.openaiApiKey = String(apiKey || '').trim();
+  }, 'Updated OpenAI API Key');
 }
 
 export function subscribeDB(fn) {
@@ -261,9 +323,18 @@ export function useDB() {
   return state;
 }
 
+// Auto-login listener
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    await initFirebaseUser(user.uid, user);
+  }
+});
+
 
 export function mutateDB(updater, activityText = null) {
-  if (!db) loadDB();
+  if (!db) db = migrateDB(defaultDB);
+  if (!Array.isArray(db.recentActivity)) db.recentActivity = [];
+  if (!Array.isArray(db.productivity)) db.productivity = [];
   updater(db);
   if (activityText) {
     db.recentActivity.unshift({
@@ -282,7 +353,7 @@ export function mutateDB(updater, activityText = null) {
 }
 
 export function resetDB() {
-  db = migrateDB({ ...defaultDB, productivity: generateProductivityData() });
+  db = migrateDB({ ...defaultDB, productivity: [] });
   saveDB();
   toast.success('Data reset complete');
 }
@@ -306,7 +377,7 @@ export function importDB(file) {
       db = migrateDB(parsed);
       saveDB();
       toast.success('Data imported!');
-    } catch (err) {
+    } catch {
       toast.error('Invalid file');
     }
   };
@@ -353,6 +424,16 @@ export function addXP(amount) {
       toast.success(`🎉 Level Up! You are now Level ${newLevel}`);
     }
     d.level = newLevel;
+
+    // Track real productivity
+    if (!d.productivity) d.productivity = [];
+    const today = new Date().toISOString().split('T')[0];
+    const todayRecord = d.productivity.find(p => p.date === today);
+    if (todayRecord) {
+      todayRecord.count += 1;
+    } else {
+      d.productivity.push({ date: today, count: 1 });
+    }
   }, 'Gained XP');
 }
 
@@ -365,11 +446,46 @@ export function calcAttendance(records) {
 }
 
 // Groq API call
+
+export async function searchWeb(query) {
+  try {
+    // We use Wikipedia API as a highly reliable free search API for academic topics
+    const url = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=3&namespace=0&format=json&origin=*`;
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (!data[1] || data[1].length === 0) {
+      // Fallback to DuckDuckGo abstract search proxy
+      const ddgUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`;
+      const res2 = await fetch(ddgUrl);
+      const data2 = await res2.json();
+      return data2.AbstractText || "No search results found.";
+    }
+
+    // Fetch summaries for the top Wikipedia results
+    const titles = data[1].join('|');
+    const summaryUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=3&exlimit=3&exintro=1&explaintext=1&titles=${encodeURIComponent(titles)}&format=json&origin=*`;
+    const sumRes = await fetch(summaryUrl);
+    const sumData = await sumRes.json();
+    
+    const pages = sumData.query?.pages;
+    if (!pages) return "No results.";
+    
+    let result = "Web Search Results:\n";
+    Object.values(pages).forEach(p => {
+      result += `- ${p.title}: ${p.extract}\n`;
+    });
+    return result;
+  } catch (err) {
+    console.error('Search failed:', err);
+    return "Search failed due to network error.";
+  }
+}
+
 export async function callGroq(messages, systemPrompt = '') {
-  const db = getDB();
-  const apiKey = db.settings?.groqApiKey;
+  const apiKey = getGroqApiKey();
   if (!apiKey) {
-    return "⚠️ No Groq API key set. Go to Settings → add your Groq API key to enable AI features.";
+    return "No Groq API key set. Go to Settings and add your Groq API key to enable AI features.";
   }
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -393,8 +509,35 @@ export async function callGroq(messages, systemPrompt = '') {
     const data = await response.json();
     return data.choices[0]?.message?.content || 'No response';
   } catch (err) {
-    return `❌ Error: ${err.message}`;
+    return `Error: ${err.message}`;
   }
+}
+
+export async function callOpenAI(messages, systemPrompt = '') {
+  const apiKey = getOpenAIApiKey();
+  if (!apiKey) return "No OpenAI API key set. Add it in Settings or Code Studio to use Codex features.";
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: systemPrompt ? [{ role: 'system', content: systemPrompt }, ...messages] : messages,
+        max_tokens: 1024,
+      }),
+    });
+    if (!response.ok) throw new Error((await response.json()).error?.message || 'OpenAI API error');
+    return (await response.json()).choices[0]?.message?.content || 'No response';
+  } catch (err) { return `OpenAI Error: ${err.message}`; }
+}
+
+
+export async function callAI(messages, systemPrompt = '') {
+  const provider = getDB().settings?.aiProvider || 'openai';
+  if (provider === 'openai') {
+    return callOpenAI(messages, systemPrompt);
+  }
+  return callGroq(messages, systemPrompt);
 }
 
 export function buildStudentContext(sourceDB = getDB()) {
@@ -419,7 +562,7 @@ export function buildStudentContext(sourceDB = getDB()) {
 
 export async function aiSummarize(text, purpose = 'academic summary') {
   if (!text?.trim()) return 'Nothing to summarize yet.';
-  return callGroq(
+  return callAI(
     [{ role: 'user', content: text }],
     `Summarize this content for a college student. Purpose: ${purpose}. Use concise bullets and include action items when useful.`
   );
@@ -427,10 +570,10 @@ export async function aiSummarize(text, purpose = 'academic summary') {
 
 export async function aiAnalyze(context, question) {
   const studentContext = buildStudentContext();
-  return callGroq(
-    [{ role: 'user', content: `Question: ${question}\n\nContext:\n${JSON.stringify(context, null, 2)}` }],
-    `You are StudentOS academic intelligence. Use the student's real profile and records to give specific, practical guidance. Student context: ${JSON.stringify(studentContext)}`
-  );
+  const sysPrompt = `You are StudentOS academic intelligence. Use the student's real profile and records to give specific, practical guidance. Student context: ${JSON.stringify(studentContext)}`;
+  const userPrompt = `Question: ${question}\n\nContext:\n${JSON.stringify(context, null, 2)}`;
+  
+  return callAI([{ role: 'user', content: userPrompt }], sysPrompt);
 }
 
 export async function notifyUser(title, body, options = {}) {
@@ -502,5 +645,3 @@ export function scheduleReminder(taskId, dueDate) {
   });
   return true;
 }
-
-// Removed auto-init to allow AuthScreen to unlock

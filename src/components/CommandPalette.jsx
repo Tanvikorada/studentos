@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, LayoutDashboard, MessageSquare, FileText, CheckSquare, Calculator, Calendar, Code, Timer, User, FileCode, Briefcase, Award, GitBranch, Globe, Mic, TrendingUp, Settings, BookOpen, BarChart3 } from 'lucide-react';
+import { Search, LayoutDashboard, MessageSquare, FileText, CheckSquare, Calculator, Calendar, Code, Timer, User, FileCode, Briefcase, Award, GitBranch, Globe, Mic, TrendingUp, Settings, BookOpen, BarChart3, Users, Sparkles } from 'lucide-react';
 
 const ALL_PANELS = [
   { id: 'dashboard', label: 'Dashboard', group: 'Overview', icon: LayoutDashboard },
@@ -12,10 +12,12 @@ const ALL_PANELS = [
   { id: 'timetable', label: 'Timetable', group: 'Academics', icon: Calendar },
   { id: 'code', label: 'Code Studio', group: 'Academics', icon: Code },
   { id: 'focus', label: 'Focus Timer', group: 'Academics', icon: Timer },
+  { id: 'studyrooms', label: 'Study Rooms', group: 'Academics', icon: Users },
   { id: 'profile', label: 'Profile', group: 'Career', icon: User },
   { id: 'resume', label: 'Resume Builder', group: 'Career', icon: FileCode },
   { id: 'projects', label: 'Projects', group: 'Career', icon: Briefcase },
   { id: 'internships', label: 'Internships', group: 'Career', icon: Briefcase },
+  { id: 'predictor', label: 'Career Predictor', group: 'Career', icon: Sparkles },
   { id: 'certs', label: 'Certs & Skills', group: 'Career', icon: Award },
   { id: 'github', label: 'GitHub Tracker', group: 'Career', icon: GitBranch },
   { id: 'portfolio', label: 'Portfolio Preview', group: 'Career', icon: Globe },

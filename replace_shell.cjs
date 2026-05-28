@@ -1,114 +1,13 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  LayoutDashboard, MessageSquare, FileText, CheckSquare, Calculator,
-  BarChart3, Calendar, Code, Timer, User, FileCode, Briefcase,
-  Award, GitBranch, Globe, Mic, TrendingUp, Settings, ChevronLeft,
-  ChevronRight, Search, GraduationCap, Bell, Sparkles, MessageCircle, X, Users
-} from 'lucide-react';
-import { useDB, calcAttendance, calcCGPA } from './store';
+const fs = require('fs');
 
-import CommandPalette from './components/CommandPalette';
-import ToastContainer from './components/Toast';
-import StyledText from './components/StyledText';
-import VoiceOS from './components/VoiceOS';
+let code = fs.readFileSync('src/Shell.jsx', 'utf8');
 
-const Dashboard = lazy(() => import('./panels/Dashboard'));
-const AIChat = lazy(() => import('./panels/AIChat'));
-const CodeStudio = lazy(() => import('./panels/CodeStudio'));
-const StudyRooms = lazy(() => import('./panels/StudyRooms'));
-
-const PlannerHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.PlannerHub })));
-const StudySpace = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.StudySpace })));
-const AcademicsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.AcademicsHub })));
-const CareerInternshipsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.CareerInternshipsHub })));
-const ProjectsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.ProjectsHub })));
-const InterviewPrep = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.InterviewPrep })));
-const ProfileSettings = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.ProfileSettings })));
-
-const NAV = [
-  {
-    group: 'Main',
-    items: [
-      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { id: 'chat', label: 'AI Chat', icon: MessageSquare },
-      { id: 'planner', label: 'Planner', icon: Calendar },
-      { id: 'studyspace', label: 'Study Space', icon: FileText },
-      { id: 'academics', label: 'Academics', icon: GraduationCap },
-      { id: 'code', label: 'Code Studio', icon: Code },
-      { id: 'studyrooms', label: 'Study Rooms', icon: Users },
-      { id: 'career', label: 'Career & Internships', icon: Briefcase },
-      { id: 'projects', label: 'Portfolio & Projects', icon: GitBranch },
-      { id: 'interview', label: 'Resume & Interview', icon: Mic },
-      { id: 'profile', label: 'Profile & Settings', icon: User },
-    ]
-  }
-];
-
-const PANEL_LABELS = {};
-NAV.forEach(g => g.items.forEach(i => { PANEL_LABELS[i.id] = i.label; }));
-
-const PANELS = {
-  dashboard: Dashboard,
-  chat: AIChat,
-  planner: PlannerHub,
-  studyspace: StudySpace,
-  academics: AcademicsHub,
-  code: CodeStudio,
-  studyrooms: StudyRooms,
-  career: CareerInternshipsHub,
-  projects: ProjectsHub,
-  interview: InterviewPrep,
-  profile: ProfileSettings,
-  settings: ProfileSettings,
-};
-
-export default function Shell() {
-  const [panel, setPanel] = useState('dashboard');
-  const [collapsed, setCollapsed] = useState(false);
-  const [cmdOpen, setCmdOpen] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-
-  const db = useDB();
-
-  // Bind theme to DOM
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', db.settings?.theme || 'chatgpt-style');
-  }, [db.settings?.theme]);
-
-  // Cmd+K
-  useEffect(() => {
-    const h = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); setCmdOpen(o => !o); }
-    };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, []);
-
-  const ActivePanel = PANELS[panel] || Dashboard;
-  const panelLabel = panel === 'settings' ? 'Settings' : PANEL_LABELS[panel] || 'Dashboard';
-  const unreadNotifications = (db.notifications || []).filter(n => !n.read);
-
-  // Calculate live stats
-  const semesters = db.gpa?.semesters || [];
-  const cgpa = parseFloat(calcCGPA(semesters)) || 0;
-
-  const attRecords = db.attendance || [];
-  let totalPresent = 0;
-  let totalClasses = 0;
-  attRecords.forEach(subj => {
-    const { present, total } = calcAttendance(subj.records);
-    totalPresent += present;
-    totalClasses += total;
-  });
-  const avgAttendance = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 100;
-
-    const theme = db.settings?.theme || 'chatgpt-style';
+const replacement = `
+  const theme = db.settings?.theme || 'chatgpt-style';
 
   const renderChatGPTLayout = () => (
     <div className="chatgpt-layout">
-      <nav className={`cgpt-sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <nav className={\`cgpt-sidebar \${collapsed ? 'collapsed' : ''}\`}>
         <div className="cgpt-sidebar-header">
           <button className="cgpt-new-chat-btn" onClick={() => setPanel('chat')}>
             <div className="icon-box"><GraduationCap size={16} color="#fff" /></div>
@@ -121,7 +20,7 @@ export default function Shell() {
         
         <div className="cgpt-nav">
           {NAV.flatMap(g => g.items).map(item => (
-            <div key={item.id} className={`cgpt-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)} title={collapsed ? item.label : ''}>
+            <div key={item.id} className={\`cgpt-nav-item \${panel === item.id ? 'active' : ''}\`} onClick={() => setPanel(item.id)} title={collapsed ? item.label : ''}>
               <item.icon size={16} />
               {!collapsed && <span>{item.label}</span>}
             </div>
@@ -143,7 +42,7 @@ export default function Shell() {
       <div className="cgpt-main">
         <div className="cgpt-mobile-header">
            <button onClick={() => setCollapsed(c => !c)}><ChevronRight size={20}/></button>
-           <StyledText text={panelLabel} style={{ fontSize: '1.25rem' }} />
+           <span>{panelLabel}</span>
         </div>
         
         <div className="cgpt-content-wrapper">
@@ -161,9 +60,9 @@ export default function Shell() {
 
   const renderClaudeLayout = () => (
     <div className="claude-layout">
-      <nav className={`claude-sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <nav className={\`claude-sidebar \${collapsed ? 'collapsed' : ''}\`}>
         <div className="claude-sidebar-header">
-          <div className="claude-logo"><GraduationCap size={16}/> {!collapsed && <StyledText text="StudentOS" />}</div>
+          <div className="claude-logo"><GraduationCap size={16}/> {!collapsed && <span>StudentOS</span>}</div>
           <button className="claude-collapse-btn" onClick={() => setCollapsed(c => !c)}><ChevronLeft size={16}/></button>
         </div>
         <div className="claude-nav-container">
@@ -174,7 +73,7 @@ export default function Shell() {
             <div key={group.group} className="claude-nav-group">
               {!collapsed && <div className="claude-group-label">{group.group}</div>}
               {group.items.map(item => (
-                <div key={item.id} className={`claude-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)}>
+                <div key={item.id} className={\`claude-nav-item \${panel === item.id ? 'active' : ''}\`} onClick={() => setPanel(item.id)}>
                   <item.icon size={14} />
                   {!collapsed && <span>{item.label}</span>}
                 </div>
@@ -204,17 +103,17 @@ export default function Shell() {
 
   const renderGeminiLayout = () => (
     <div className="gemini-layout">
-      <nav className={`gemini-sidebar ${collapsed ? 'collapsed' : ''}`}>
+      <nav className={\`gemini-sidebar \${collapsed ? 'collapsed' : ''}\`}>
         <div className="gemini-sidebar-header">
           <button className="gemini-menu-btn" onClick={() => setCollapsed(c => !c)}><ChevronLeft size={20}/></button>
-          {!collapsed && <div className="gemini-logo"><StyledText text="StudentOS" /></div>}
+          {!collapsed && <span className="gemini-logo">StudentOS</span>}
         </div>
         <div className="gemini-nav">
            <button className="gemini-new-chat" onClick={() => setPanel('chat')}>
              <Sparkles size={20}/> {!collapsed && <span>New chat</span>}
            </button>
            {NAV.flatMap(g => g.items).map(item => (
-            <div key={item.id} className={`gemini-nav-item ${panel === item.id ? 'active' : ''}`} onClick={() => setPanel(item.id)}>
+            <div key={item.id} className={\`gemini-nav-item \${panel === item.id ? 'active' : ''}\`} onClick={() => setPanel(item.id)}>
               <item.icon size={20} />
               {!collapsed && <span>{item.label}</span>}
             </div>
@@ -229,7 +128,7 @@ export default function Shell() {
       </nav>
       <div className="gemini-main">
         <header className="gemini-header">
-           <div className="gemini-header-title"><StyledText text={panelLabel} /></div>
+           <div className="gemini-header-title">{panelLabel}</div>
            <div className="gemini-header-actions">
              {cgpa > 0 && <span className="gemini-badge">{cgpa.toFixed(2)} CGPA</span>}
              <div className="gemini-avatar" onClick={() => setPanel('profile')}>{db.profile.name?.[0] || 'S'}</div>
@@ -279,7 +178,15 @@ export default function Shell() {
       </AnimatePresence>
       <CommandPalette isOpen={cmdOpen} onClose={() => setCmdOpen(false)} onNavigate={setPanel} />
       <ToastContainer />
-      <VoiceOS onNavigate={setPanel} />
     </div>
   );
-}
+`;
+
+let funcStart = code.indexOf('export default function Shell() {');
+let retStart = code.indexOf('return (', funcStart);
+
+// We need to make sure we don't accidentally cut off the end.
+let newFunc = code.substring(0, retStart) + replacement + '\n}\n';
+
+fs.writeFileSync('src/Shell.jsx', newFunc);
+console.log('Shell.jsx replaced successfully');

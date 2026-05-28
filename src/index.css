@@ -205,14 +205,14 @@
 }
 
 [data-theme="zen-minimal"] .card {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
   box-shadow: none;
   border-radius: 2px;
   background: rgba(18, 18, 18, 0.98);
 }
 
 [data-theme="zen-minimal"] .btn-primary {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface2);
   color: #0a0a0a;
   border: none;
   box-shadow: none;
@@ -227,8 +227,8 @@
 }
 
 [data-theme="zen-minimal"] .bg-glow-sphere { display: none; }
-[data-theme="zen-minimal"] .sidebar { border-right: 1px solid rgba(255,255,255,0.06); background: #0d0d0d; }
-[data-theme="zen-minimal"] .nav-item.active { background: rgba(255,255,255,0.08); border-left: 2px solid #fff; box-shadow: none; }
+[data-theme="zen-minimal"] .sidebar { border-right: 1px solid var(--border); background: #0d0d0d; }
+[data-theme="zen-minimal"] .nav-item.active { background: var(--surface2); border-left: 2px solid #fff; box-shadow: none; }
 [data-theme="zen-minimal"] .card-glow { box-shadow: none; }
 [data-theme="zen-minimal"] h1 { letter-spacing: -0.03em; font-weight: 300; }
 
@@ -301,7 +301,7 @@ input, textarea, select {
 }
 
 input:hover, textarea:hover, select:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--surface2);
 }
 
 a {
@@ -499,7 +499,7 @@ ul, ol {
 .nav-item:hover {
   color: var(--text);
   transform: translateX(4px);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface2);
 }
 
 .nav-item.active {
@@ -610,8 +610,8 @@ ul, ol {
 .notification-item {
   padding: 12px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--border);
+  background: var(--surface2);
   margin-bottom: 8px;
 }
 
@@ -653,7 +653,7 @@ ul, ol {
   background: rgba(10, 10, 20, 0.45);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
 }
 
@@ -682,7 +682,7 @@ ul, ol {
 .btn-primary {
   background: linear-gradient(135deg, var(--violet), #4f46e5);
   color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -693,14 +693,14 @@ ul, ol {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--surface2);
+  border-color: var(--border2);
 }
 
 .btn-ghost {
@@ -709,7 +709,7 @@ ul, ol {
 }
 
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   color: var(--text);
 }
 
@@ -747,9 +747,9 @@ ul, ol {
 .input {
   width: 100%;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--surface2);
   border: 1px solid transparent;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
   font-size: 0.95rem;
@@ -757,14 +757,14 @@ ul, ol {
 }
 
 .input:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface2);
   border-bottom-color: rgba(255, 255, 255, 0.2);
 }
 
 .input:focus {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border2);
   border-bottom-color: var(--violet);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--surface3);
   box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.15);
   transform: translateY(-1px);
 }
@@ -790,9 +790,9 @@ select.input {
 }
 
 select.input option {
-  background: #0d0d18;
-  color: var(--text);
-}
+    background: var(--surface);
+    color: var(--text);
+  }
 
 .input-sm {
   padding: 7px 10px;
@@ -863,15 +863,15 @@ select.input option {
 }
 
 .badge-gray {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   color: var(--text2);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
 }
 
 /* Stat Card */
 .stat-card {
-  background: rgba(255, 255, 255, 0.015);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   display: flex;
@@ -882,10 +882,10 @@ select.input option {
 }
 
 .stat-card:hover {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--border2);
   transform: translateY(-3px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), var(--glow);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--surface2);
 }
 
 .stat-icon {
@@ -926,7 +926,7 @@ select.input option {
   flex: 1;
   min-width: 290px;
   background: rgba(16, 16, 28, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow);
@@ -953,8 +953,8 @@ select.input option {
 }
 
 .kanban-card {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 16px;
   cursor: grab;
@@ -966,7 +966,7 @@ select.input option {
   border-color: var(--border2);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), var(--glow);
-  background: rgba(255, 255, 255, 0.045);
+  background: var(--surface2);
 }
 
 .kanban-card:active {
@@ -976,10 +976,10 @@ select.input option {
 /* Progress bar */
 .progress-bar {
   height: 8px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   border-radius: 99px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
 }
 
 .progress-fill {
@@ -1010,7 +1010,7 @@ select.input option {
   border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   pointer-events: auto;
@@ -1070,12 +1070,12 @@ select.input option {
   color: #fff;
   border-radius: 20px 20px 4px 20px;
   align-self: flex-end;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
 }
 
 .chat-bubble.ai {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 20px 20px 20px 4px;
   align-self: flex-start;
 }
@@ -1084,15 +1084,15 @@ select.input option {
   display: flex;
   gap: 12px;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  border-top: 1px solid var(--border);
 }
 
 .thread-tabs {
   display: inline-flex;
   gap: 4px;
   padding: 4px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
 }
 
@@ -1198,8 +1198,8 @@ select.input option {
   gap: 4px;
   padding: 14px 38px 14px 14px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   color: var(--text);
   text-align: left;
 }
@@ -1231,7 +1231,7 @@ select.input option {
   align-items: center;
   gap: 16px;
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
 }
 
 .notes-title-input {
@@ -1260,7 +1260,7 @@ select.input option {
   grid-template-columns: 1fr 1.4fr;
   gap: 10px;
   padding: 12px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
 }
 
 .notes-toolbar {
@@ -1268,7 +1268,7 @@ select.input option {
   flex-wrap: wrap;
   gap: 8px;
   padding: 12px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
 }
 
 .notes-split {
@@ -1283,7 +1283,7 @@ select.input option {
   height: 100%;
   resize: none;
   padding: 22px;
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid var(--border);
   color: var(--text2);
   font-family: 'JetBrains Mono', monospace;
   line-height: 1.75;
@@ -1306,7 +1306,7 @@ select.input option {
   aspect-ratio: 1;
   min-width: 10px;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
 }
 
 .timetable-grid {
@@ -1323,8 +1323,8 @@ select.input option {
   align-items: center;
   padding: 12px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   margin-bottom: 8px;
 }
 
@@ -1583,7 +1583,7 @@ select.input option {
 
 .divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   margin: 20px 0;
 }
 
@@ -1618,7 +1618,7 @@ select.input option {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid rgba(255, 255, 255, 0.02);
+  border-right: 1px solid var(--border);
 }
 
 .auth-form {
@@ -1678,7 +1678,7 @@ select.input option {
   width: 13px;
   height: 13px;
   border-radius: 3px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface2);
   transition: all 0.2s ease;
 }
 
@@ -1698,7 +1698,7 @@ select.input option {
 .table th, .table td {
   padding: 12px 18px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border);
 }
 
 .table th {
@@ -1707,7 +1707,7 @@ select.input option {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: rgba(255, 255, 255, 0.01);
+  background: var(--surface2);
 }
 
 .table tr:last-child td {
@@ -1715,7 +1715,7 @@ select.input option {
 }
 
 .table tr:hover td {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--surface2);
 }
 
 /* Command Palette */
@@ -1736,7 +1736,7 @@ select.input option {
   background: rgba(16, 16, 28, 0.85);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 580px;
@@ -1748,7 +1748,7 @@ select.input option {
   width: 100%;
   padding: 18px 24px;
   font-size: 1.05rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border);
 }
 
 .cmd-results {
@@ -1788,7 +1788,7 @@ select.input option {
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
   margin-left: 10px;
 }
 
@@ -1803,8 +1803,8 @@ select.input option {
   display: inline-flex;
   align-items: center;
   padding: 3px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   border-radius: 99px;
   font-size: 0.72rem;
   font-weight: 600;
@@ -1814,8 +1814,8 @@ select.input option {
 }
 
 .chip:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--surface2);
+  border-color: var(--border2);
 }
 
 /* Soundwave animations for Mock Interview */
@@ -1971,8 +1971,8 @@ select.input option {
   border-radius: 99px;
   font-size: 0.8rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--surface2);
+  border: 1px solid var(--border);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -2092,12 +2092,12 @@ select.input option {
 }
 [data-theme="chatgpt-style"] .card {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
   box-shadow: none;
 }
 [data-theme="chatgpt-style"] .input {
   background: #2f2f2f;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
 }
 
 /* Claude Real Style */
@@ -2274,7 +2274,7 @@ select.input option {
 
 .cgpt-sidebar-footer {
   padding: 12px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -2738,7 +2738,7 @@ select.input option {
 
 .chatgpt-style .chat-input-bar {
   background: #2f2f2f;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 8px 12px;
   box-shadow: 0 0 15px rgba(0,0,0,0.1);
@@ -2931,4 +2931,11 @@ select.input option {
 
 .gemini-style .chat-bubble.ai {
   color: #1f1f1f !important;
+}
+
+[data-theme="chatgpt-style"] .sidebar {
+  background: var(--surface2) !important;
+}
+[data-theme="chatgpt-style"] .input {
+  color: var(--text);
 }

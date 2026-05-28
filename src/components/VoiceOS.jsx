@@ -1,20 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
-import { Mic, Loader2, StopCircle } from 'lucide-react';
+import { Bot, Loader2, StopCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDB, mutateDB, callGroq, toast } from '../store';
+import { useDB, mutateDB, callAI, toast } from '../store';
 
 export default function VoiceOS({ onNavigate }) {
   const [listening, setListening] = useState(false);
+  const [wakeWordMode, setWakeWordMode] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef(null);
   const db = useDB();
+  const agentName = db.settings?.agentName || 'Jarvis';
 
   useEffect(() => {
+    // First time onboarding greeting
+    if (!db.settings?.onboardingComplete) {
+      setTimeout(() => {
+        speakText(`Hello! I am ${agentName}, your AI assistant. You can click the bot icon to speak to me. I have full control to help you manage your timetable, tasks, profile, and more.`);
+        mutateDB(d => {
+          if (!d.settings) d.settings = {};
+          d.settings.onboardingComplete = true;
+        }, 'Completed voice onboarding');
+      }, 1500);
+    }
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const rec = new SpeechRecognition();
-      rec.continuous = false;
+      rec.continuous = wakeWordMode;
       rec.interimResults = true;
       rec.onresult = (event) => {
         let finalTranscript = '';
@@ -23,31 +36,52 @@ export default function VoiceOS({ onNavigate }) {
           else setTranscript(event.results[i][0].transcript);
         }
         if (finalTranscript) {
-          setTranscript(finalTranscript);
-          processCommand(finalTranscript);
+          const lower = finalTranscript.toLowerCase().trim();
+          const trigger = `hey ${agentName.toLowerCase()}`;
+          if (wakeWordMode) {
+            if (lower.includes(trigger)) {
+              const command = lower.split(trigger)[1].trim();
+              if (command) {
+                setTranscript(command);
+                processCommand(command);
+              } else {
+                setTranscript(`Listening... what can I do for you?`);
+                speakText(`Yes?`);
+              }
+            } else {
+              setTranscript(finalTranscript); // Just show what it heard
+            }
+          } else {
+            setTranscript(finalTranscript);
+            processCommand(finalTranscript);
+          }
         }
       };
       rec.onerror = (e) => {
-        console.error('Speech recognition error', e.error);
-        setListening(false);
+        if (e.error !== 'no-speech') console.error('Speech recognition error', e.error);
+        if (!wakeWordMode) setListening(false);
       };
       rec.onend = () => {
-        setListening(false);
+        if (wakeWordMode && listening) {
+          try { rec.start(); } catch (e) {}
+        } else {
+          setListening(false);
+        }
       };
       recognitionRef.current = rec;
     }
-  }, []);
+  }, [db.settings?.onboardingComplete, agentName, wakeWordMode, listening]);
 
   const toggleListening = () => {
-    if (!db.settings?.groqApiKey) {
-      toast.error('Groq API Key missing. Add it in Settings.');
+    if (!db.settings?.groqApiKey && !db.settings?.openaiApiKey && !window.localStorage.getItem('studentos_openai_key')) {
+      toast.error('AI API Key missing. Add it in Settings.');
       return;
     }
     if (listening) {
       recognitionRef.current?.stop();
       setListening(false);
     } else {
-      setTranscript('Listening...');
+      setTranscript(wakeWordMode ? `Wake Word Mode: Say "Hey ${agentName}"` : 'Listening...');
       recognitionRef.current?.start();
       setListening(true);
     }
@@ -55,48 +89,61 @@ export default function VoiceOS({ onNavigate }) {
 
   const processCommand = async (text) => {
     setProcessing(true);
-    const systemPrompt = `You are Jarvis, the StudentOS AI voice assistant.
+    const systemPrompt = `You are ${agentName}, the intelligent AI voice assistant for StudentOS.
 The user just said: "${text}"
 
-Available Panels to navigate to: dashboard, chat, notes, tasks, gpa, attendance, timetable, codestudio, focus, profile, projects, certs, github, predictor, settings.
+You have FULL control over the user's application database via JavaScript. 
+The database 'd' has the following schema:
+- d.tasks: array of {id, title, subject, dueDate, completed}
+- d.timetable: object { Monday: [{id, subject, type, startTime, endTime, room, notes}], Tuesday: [...], ... }
+- d.profile: object { name, college, dept, bio, headline }
+- d.notes: array of {id, title, content, date}
+- d.attendance: array of {id, subject, present, total}
 
-Extract the user's intent. Output ONLY a valid JSON object, nothing else.
+Determine the intent and respond ONLY with a valid JSON object.
 Possible intents:
-1. "navigate" - if they want to open a panel. { "action": "navigate", "panel": "panel_name" }
-2. "add_task" - if they want to add a task. { "action": "add_task", "title": "task title", "subject": "subject" (or "General") }
-3. "info" - if they ask a question about their data (like GPA, tasks). You have access to their stats. Return { "action": "speak", "text": "your spoken answer" }
+1. "navigate": { "action": "navigate", "panel": "panel_name" } (panels: dashboard, chat, notes, tasks, gpa, attendance, timetable, codestudio, focus, profile, projects, certs, github, predictor, settings)
+2. "speak": { "action": "speak", "text": "spoken response" } (use this to chat, answer questions, or acknowledge un-actionable statements)
+3. "mutate": If the user wants to add, update, or delete ANY data (e.g., schedule, tasks, profile).
+{ 
+  "action": "mutate", 
+  "code": "d.timetable.Monday.push({id: Date.now().toString(), subject: 'Math', type: 'Lecture', startTime: '10:00', endTime: '11:00'}); d.profile.bio = 'Love math';",
+  "speakMsg": "I have added Math to your Monday schedule and updated your bio."
+}
 
-Here is their current data context:
-GPA: ${db.gpa?.semesters?.length ? db.gpa.semesters.length + ' semesters' : 'none'}
-Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0} pending
+CRITICAL RULES for 'mutate':
+- The 'code' must be pure JS that directly mutates 'd'. Do NOT use 'const' or 'let'. Do not return anything.
+- Assume 'd' is already defined.
+- Use Date.now().toString() for unique IDs.
+
+User Context:
+Name: ${db.profile?.name || 'Unknown'}
+Pending Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0}
 `;
 
     try {
-      const res = await callGroq([], systemPrompt);
+      const res = await callAI([], systemPrompt);
       const jsonStr = res.replace(/```json/g, '').replace(/```/g, '').trim();
       const intent = JSON.parse(jsonStr);
 
       if (intent.action === 'navigate') {
         onNavigate(intent.panel);
         toast.success(`Opening ${intent.panel}...`);
-      } else if (intent.action === 'add_task') {
+        speakText(`Opening ${intent.panel}`);
+      } else if (intent.action === 'mutate') {
         mutateDB(d => {
-          if (!d.tasks) d.tasks = [];
-          d.tasks.unshift({
-            id: Date.now().toString(),
-            title: intent.title,
-            subject: intent.subject || 'General',
-            dueDate: new Date().toISOString().split('T')[0],
-            completed: false
-          });
-        }, `Added voice task: ${intent.title}`);
-        toast.success(`Task added: ${intent.title}`);
+          // Dynamically evaluate the AI's mutation code
+          const fn = new Function('d', `"use strict";\n${intent.code}`);
+          fn(d);
+        }, `${agentName} updated data`);
+        if (intent.speakMsg) speakText(intent.speakMsg);
       } else if (intent.action === 'speak') {
         speakText(intent.text);
       }
     } catch (e) {
       console.error(e);
-      toast.error("Couldn't process voice command.");
+      toast.error("Couldn't process command.");
+      speakText("Sorry, I had trouble understanding that.");
     } finally {
       setProcessing(false);
       setTimeout(() => setTranscript(''), 3000);
@@ -107,7 +154,7 @@ Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0} pending
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
     synth.speak(utterance);
-    toast.success('Jarvis spoke a response.');
+    toast.success(`${agentName} spoke.`);
   };
 
   return (
@@ -120,11 +167,23 @@ Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0} pending
           </motion.div>
         )}
       </AnimatePresence>
-      <button 
-        onClick={toggleListening}
-        style={{ width: 56, height: 56, borderRadius: '50%', background: listening ? 'var(--red)' : 'var(--violet)', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', transition: 'all 0.2s', outline: listening ? '4px solid rgba(244,63,94,0.3)' : 'none' }}>
-        {listening ? <StopCircle size={24} /> : <Mic size={24} />}
-      </button>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {listening && (
+          <button 
+            onClick={() => {
+              setWakeWordMode(!wakeWordMode);
+              if (recognitionRef.current) recognitionRef.current.stop(); // restart with new mode
+            }}
+            style={{ padding: '6px 12px', borderRadius: 20, background: 'var(--surface)', border: '1px solid var(--border)', color: wakeWordMode ? 'var(--mint)' : 'var(--text3)', fontSize: '0.75rem', cursor: 'pointer', boxShadow: 'var(--shadow)' }}>
+            {wakeWordMode ? 'Wake Word ON' : 'Wake Word OFF'}
+          </button>
+        )}
+        <button 
+          onClick={toggleListening}
+          style={{ width: 56, height: 56, borderRadius: '50%', background: listening ? 'var(--red)' : 'linear-gradient(135deg, var(--violet), var(--mint))', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', transition: 'all 0.2s', outline: listening ? '4px solid rgba(244,63,94,0.3)' : 'none' }}>
+          {listening ? <StopCircle size={24} /> : <Bot size={26} />}
+        </button>
+      </div>
     </div>
   );
 }

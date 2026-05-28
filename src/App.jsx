@@ -4,27 +4,40 @@ import Splash from './components/Splash';
 import AuthScreen from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
 import Shell from './Shell';
-import { unlockDB } from './store';
+import { useDB, isDBUnlocked, unlockDB } from './store';
 import './index.css';
-
-const RETURNING_KEY = 'studentos_returning';
 
 export default function App() {
   const [phase, setPhase] = useState('splash');
+  const dbState = useDB();
+  const unlocked = isDBUnlocked();
 
   useEffect(() => {
-    // We do NOT auto-skip to 'app' anymore because they must unlock the DB!
-  }, []);
+    if (phase !== 'splash') {
+      if (!unlocked) {
+        setPhase('auth');
+      } else {
+        const isNew = !dbState.settings?.onboardingComplete;
+        setPhase(isNew ? 'onboarding' : 'app');
+      }
+    }
+  }, [unlocked, dbState.settings?.onboardingComplete, phase]);
 
   const handleSplashDone = () => {
-    setPhase('auth');
+    if (unlocked) {
+      const isNew = !dbState.settings?.onboardingComplete;
+      setPhase(isNew ? 'onboarding' : 'app');
+    } else {
+      setPhase('auth');
+    }
+  };
+
+  const finishAuth = () => {
+    // Phase transitions are handled reactively by the useEffect above
   };
 
   const handleAuthLocal = () => {
-    const isNew = !localStorage.getItem(RETURNING_KEY);
-    localStorage.setItem(RETURNING_KEY, '1');
     unlockDB('local_sandbox');
-    setPhase(isNew ? 'onboarding' : 'app');
   };
 
   return (
@@ -36,7 +49,7 @@ export default function App() {
       )}
       {phase === 'auth' && (
         <motion.div key="auth" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <AuthScreen onAuth={handleAuthLocal} onLocal={handleAuthLocal} />
+          <AuthScreen onAuth={finishAuth} onLocal={handleAuthLocal} />
         </motion.div>
       )}
       {phase === 'onboarding' && (

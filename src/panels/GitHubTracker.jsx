@@ -15,7 +15,7 @@ export default function GitHubTracker() {
     try {
       const [userRes, reposRes] = await Promise.all([
         fetch(`https://api.github.com/users/${username}`),
-        fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=12`),
+        fetch(`https://api.github.com/users/${username}/repos?per_page=100`),
       ]);
       if (!userRes.ok) throw new Error('User not found');
       const user = await userRes.json();
@@ -24,8 +24,9 @@ export default function GitHubTracker() {
       const langCounts = {};
       repos.forEach(r => { if (r.language) langCounts[r.language] = (langCounts[r.language] || 0) + 1; });
       const topLangs = Object.entries(langCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const topRepos = repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 8);
 
-      const tracked = { user, repos: repos.slice(0, 8), topLangs, fetchedAt: new Date().toISOString() };
+      const tracked = { user, repos: topRepos, topLangs, fetchedAt: new Date().toISOString() };
       setData(tracked);
       mutateDB(d => { d.github = { username, trackedData: tracked }; }, `Fetched GitHub: ${username}`);
       toast.success(`Loaded ${repos.length} repos for ${username}`);
@@ -76,8 +77,17 @@ export default function GitHubTracker() {
                     <div style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>{s.label}</div>
                   </div>
                 ))}
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: '1.2rem', fontFamily: 'Instrument Serif, serif', fontStyle: 'italic' }}>{data.user.public_gists}</div>
+                  <div style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>Gists</div>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div className="card mb-4" style={{ overflowX: 'auto' }}>
+            <div style={{ fontWeight: 600, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Activity size={16} /> Contribution Graph</div>
+            <img src={`https://ghchart.rshah.org/8b5cf6/${data.user.login}`} alt={`${data.user.login}'s Github chart`} style={{ width: '100%', minWidth: 600, filter: 'hue-rotate(20deg) brightness(1.2)' }} />
           </div>
 
           <div className="grid-2 mb-4">

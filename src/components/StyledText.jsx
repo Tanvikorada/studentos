@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * Applies the iconic StudentOS typography style to any text heading.
  * It highlights a specific, meaningful substring of the text based on predefined rules.
@@ -38,27 +36,34 @@ export default function StyledText({ text, highlight, style = {}, className = ""
     if (matchingKey) {
       targetHighlight = highlightMap[matchingKey];
     } else {
-      // Default: highlight the last word if it's long enough, else the first word
-      const words = text.split(' ');
-      targetHighlight = words[words.length - 1];
+      // Default fallback: if it's exactly two words, highlight the second. 
+      // If it's more than two, don't highlight anything to avoid awkwardness.
+      const words = text.split(' ').filter(Boolean);
+      if (words.length === 2) {
+        targetHighlight = words[1];
+      } else {
+        return <span className={`styled-heading ${className}`} style={{ fontWeight: 600, ...style }}>{text}</span>;
+      }
     }
   }
 
-  // Helper to split the text around the target highlight
   const highlightIndex = text.toLowerCase().indexOf(targetHighlight.toLowerCase());
 
   if (highlightIndex === -1) {
-    return <span className={`styled-heading ${className}`} style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', ...style }}>{text}</span>;
+    return <span className={`styled-heading ${className}`} style={{ ...style }}>{text}</span>;
   }
 
   const firstPart = text.slice(0, highlightIndex);
   const highlightedPart = text.slice(highlightIndex, highlightIndex + targetHighlight.length);
   const lastPart = text.slice(highlightIndex + targetHighlight.length);
 
+  // If the highlighted word is OS or a known purple keyword, use violet
+  const isViolet = ['OS', 'Studio', 'Rooms', 'Hub', 'Trends', 'Prep', 'Settings'].includes(targetHighlight) || (text.split(' ').length === 2 && targetHighlight === text.split(' ')[1]);
+
   return (
-    <span className={`styled-heading ${className}`} style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', ...style }}>
+    <span className={`styled-heading ${className}`} style={{ fontWeight: 600, ...style }}>
       {firstPart}
-      <span style={{ color: 'var(--red)', fontWeight: 700, fontStyle: 'normal' }}>
+      <span style={{ color: isViolet ? 'var(--violet)' : 'var(--red)', fontWeight: 800 }}>
         {highlightedPart}
       </span>
       {lastPart}

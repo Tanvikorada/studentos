@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { useDB, mutateDB, callGroq, buildStudentContext, toast } from '../store';
+import { useDB, mutateDB, callAI, buildStudentContext, toast } from '../store';
 import { Send, Bot, Trash2, Sparkles, Save, ImagePlus } from 'lucide-react';
 
 const THREADS = [
@@ -85,7 +85,7 @@ Student context JSON: ${JSON.stringify(context)}
 
 Format with clear markdown. Be concise when the user asks a small question and detailed when planning, tutoring, or analyzing.`;
 
-    const reply = await callGroq(newMessages.map(m => ({ role: m.role, content: m.content })), systemPrompt);
+    const reply = await callAI(newMessages.map(m => ({ role: m.role, content: m.content })), systemPrompt);
     const aiMsg = { role: 'assistant', content: reply };
     const finalMessages = [...newMessages, aiMsg];
     setMessages(finalMessages);
@@ -139,9 +139,21 @@ Format with clear markdown. Be concise when the user asks a small question and d
             ))}
           </div>
         )}
-        <button className="btn btn-ghost btn-sm" onClick={clearChat}>
-          <Trash2 size={14} /> Clear
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {!compact && (
+            <button className="btn btn-secondary btn-sm" onClick={() => {
+              mutateDB(d => {
+                if (!d.settings) d.settings = {};
+                d.settings.aiProvider = d.settings.aiProvider === 'openai' ? 'groq' : 'openai';
+              });
+            }}>
+              {db.settings?.aiProvider === 'openai' ? '🧠 GPT-4o' : '⚡ LLaMA 3.3'}
+            </button>
+          )}
+          <button className="btn btn-ghost btn-sm" onClick={clearChat}>
+            <Trash2 size={14} /> Clear
+          </button>
+        </div>
       </div>
 
       {!compact && (

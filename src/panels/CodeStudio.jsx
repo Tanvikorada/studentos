@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDB, mutateDB, toast, aiAnalyze } from '../store';
+import { useDB, mutateDB, toast, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey } from '../store';
 import { Plus, Trash2, Copy, Code, Sparkles, Bug, Wand2, Play, Terminal } from 'lucide-react';
 
 const LANGS = ['python', 'javascript', 'java', 'cpp', 'sql', 'bash', 'html', 'css', 'typescript', 'rust'];
@@ -102,7 +102,11 @@ export default function CodeStudio() {
       improve: 'Improve this code for readability, performance, and comments. Return concise recommendations and a revised snippet if useful.',
       practice: `Generate one ${draft.lang || snippet?.lang || 'python'} coding practice problem based on this topic/language. Include difficulty, statement, constraints, examples, and hints.`,
     };
-    const result = await aiAnalyze({ language: current?.lang || draft.lang, code: current?.code || '', title: current?.title || draft.title }, prompts[mode]);
+    const result = await aiAnalyze(
+      { language: current?.lang || draft.lang, code: current?.code || '', title: current?.title || draft.title }, 
+      prompts[mode],
+      db.settings?.aiProvider === 'openai'
+    );
     setAiResult(result);
     setAiLoading('');
   };
@@ -118,6 +122,7 @@ export default function CodeStudio() {
     const current = adding || editing ? draft : snippet;
     if (!current?.code) { toast.error('Add or select code first'); return; }
     setRunOutput('Running...');
+    
     if (current.lang === 'javascript') {
       const originalLog = console.log;
       try {
@@ -133,7 +138,48 @@ export default function CodeStudio() {
       }
       return;
     }
-    setRunOutput('Run support for this language needs a Judge0 API key/server proxy. JavaScript snippets run locally in the browser.');
+
+    // Piston execution for other languages
+    const pistonLangMap = {
+      python: { lang: 'python', ver: '3.10.0' },
+      java: { lang: 'java', ver: '15.0.2' },
+      cpp: { lang: 'c++', ver: '10.2.0' },
+      sql: { lang: 'sqlite3', ver: '3.36.0' },
+      bash: { lang: 'bash', ver: '5.2.0' },
+      typescript: { lang: 'typescript', ver: '5.0.3' },
+      rust: { lang: 'rust', ver: '1.68.2' },
+      html: { lang: 'html', ver: null },
+      css: { lang: 'css', ver: null },
+    };
+
+    const target = pistonLangMap[current.lang];
+    if (!target || !target.ver) {
+      setRunOutput(`${current.lang} cannot be executed in this environment.`);
+      return;
+    }
+
+    try {
+      const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          language: target.lang,
+          version: target.ver,
+          files: [{ content: current.code }]
+        })
+      });
+      const data = await res.json();
+      
+      if (data.run) {
+        setRunOutput(data.run.output || 'Completed with no output');
+      } else if (data.message) {
+        setRunOutput(`Error: ${data.message}`);
+      } else {
+        setRunOutput('Failed to execute code.');
+      }
+    } catch (err) {
+      setRunOutput(`Execution failed: ${err.message}`);
+    }
   };
 
   return (
@@ -234,6 +280,26 @@ export default function CodeStudio() {
         <div className="card">
           <div className="section-title"><Terminal size={16} /> Output</div>
           <pre className="mono" style={{ whiteSpace: 'pre-wrap', fontSize: '0.78rem', color: 'var(--text2)' }}>{runOutput || 'Run a JavaScript snippet to see output here.'}</pre>
+        </div>
+        <div className="card">
+          <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+             <Sparkles size={16} style={{ color: 'var(--violet)' }} /> 
+             AI Assistant
+          </div>
+          
+          <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer' }}>
+              <input type="radio" name="ai-provider" checked={db.settings?.aiProvider === 'openai'} onChange={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.aiProvider='openai'})} />
+              OpenAI API
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer' }}>
+              <input type="radio" name="ai-provider" checked={db.settings?.aiProvider === 'groq'} onChange={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.aiProvider='groq'})} />
+              Groq API
+            </label>
+          </div>
+          <div className="text-muted" style={{ fontSize: '0.7rem', marginTop: 8, lineHeight: 1.4 }}>
+            Manage API keys in Profile & Settings.
+          </div>
         </div>
         {aiResult && !snippet && (
           <div className="card markdown-lite" style={{ overflowY: 'auto' }}>

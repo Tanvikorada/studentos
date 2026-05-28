@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { getDB, mutateDB, toast, unlockDB } from '../store';
+import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from '../firebase';
+import StyledText from './StyledText';
 
 // Eye tracking characters from the prompt
 function EyeBall({ size = 48, pupilSize = 16, maxDistance = 10, eyeColor = 'white', pupilColor = 'black', isBlinking = false, forceLookX, forceLookY }) {
@@ -162,30 +164,51 @@ export default function AuthScreen({ onAuth, onLocal }) {
   const [showPwd, setShowPwd] = useState(false);
   const [isTypingEmail, setIsTypingEmail] = useState(false);
   const [isTypingPassword, setIsTypingPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) { toast.error('Fill in all fields'); return; }
+    if (mode === 'register' && !form.name) { toast.error('Full name is required'); return; }
     
-    // Real Local Auth
-    const success = unlockDB(form.password);
+    setLoading(true);
     
-    if (success) {
+    try {
       if (mode === 'register') {
+        const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
+        await updateProfile(userCred.user, { displayName: form.name });
+        
+        // Ensure local profile receives the additional registration fields
         mutateDB(d => {
-          d.profile.name = form.name || d.profile.name;
+          d.profile.name = form.name;
           if (form.college) d.profile.college = form.college;
           if (form.dept) d.profile.dept = form.dept;
         });
-        toast.success('Account created & Vault locked!');
+        
+        toast.success('Account created successfully!');
       } else {
-        toast.success('Welcome to StudentOS!');
+        await signInWithEmailAndPassword(auth, form.email, form.password);
+        toast.success('Welcome back to StudentOS!');
       }
-      onLocal();
-    } else {
-      toast.error('Incorrect password! Vault locked.');
+      
+      // onAuthStateChanged in store.js will handle the transition automatically.
+      if (onAuth) onAuth();
+      
+    } catch (err) {
+      console.error(err);
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        toast.error('Invalid email or password.');
+      } else if (err.code === 'auth/email-already-in-use') {
+        toast.error('Email is already registered.');
+      } else if (err.code === 'auth/weak-password') {
+        toast.error('Password should be at least 6 characters.');
+      } else {
+        toast.error(err.message || 'Authentication failed.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -213,7 +236,7 @@ export default function AuthScreen({ onAuth, onLocal }) {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
             <div className="sidebar-logo"><GraduationCap size={16} /></div>
-            <span style={{ fontWeight: 700, fontSize: '1rem' }}>StudentOS</span>
+            <StyledText text="StudentOS" style={{ fontSize: '1.25rem' }} />
           </div>
 
           <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: 6 }}>
@@ -266,8 +289,8 @@ export default function AuthScreen({ onAuth, onLocal }) {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 4 }}>
-              {mode === 'login' ? 'Sign In' : 'Create Account'}
+            <button type="submit" className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 4 }} disabled={loading}>
+              {loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Create Account')}
             </button>
           </form>
 

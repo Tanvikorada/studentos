@@ -1,7 +1,7 @@
 import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze } from '../store';
+import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey } from '../store';
 import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck } from 'lucide-react';
 
 export function ResumeBuilder() {
@@ -183,6 +183,7 @@ export function Portfolio() {
   const db = useDB();
   const { profile, projects, resumeData, skills } = db;
   const [layout, setLayout] = useState(db.portfolioConfig?.layout || 'cards');
+  const [showDeployGuide, setShowDeployGuide] = useState(false);
 
   const portfolioHTML = () => {
     const projectHTML = (projects || []).map(p => `<article class="project"><h3>${p.name || ''}</h3><p>${p.desc || ''}</p><div>${(p.tech || []).map(t => `<span>${t}</span>`).join('')}</div>${p.repo ? `<a href="${p.repo}">View project</a>` : ''}</article>`).join('');
@@ -217,9 +218,24 @@ export function Portfolio() {
               }}>{t}</button>
             ))}
           </div>
-          <button className="btn btn-primary btn-sm" onClick={downloadHTML}><Download size={14} /> Download HTML</button>
+          <button className="btn btn-primary btn-sm" onClick={() => setShowDeployGuide(!showDeployGuide)}><Globe size={14} /> Deploy to GitHub</button>
+          <button className="btn btn-secondary btn-sm" onClick={downloadHTML}><Download size={14} /> Download HTML</button>
         </div>
       </div>
+
+      {showDeployGuide && (
+        <div className="card mb-4" style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(0,200,100,0.1))', border: '1px solid var(--violet)' }}>
+          <h3 style={{ fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}><Globe size={16} /> Free Hosting via GitHub Pages</h3>
+          <ol style={{ paddingLeft: 20, lineHeight: 1.6, fontSize: '0.9rem', color: 'var(--text2)', margin: 0 }}>
+            <li style={{ marginBottom: 4 }}>Click <strong>Download HTML</strong> above to save your portfolio.</li>
+            <li style={{ marginBottom: 4 }}>Rename the downloaded file exactly to <code>index.html</code>.</li>
+            <li style={{ marginBottom: 4 }}>Go to <a href="https://github.com/new" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>github.com/new</a> and create a new public repository.</li>
+            <li style={{ marginBottom: 4 }}>Upload your <code>index.html</code> file to this repository.</li>
+            <li>Go to the repository <strong>Settings {'>'} Pages</strong>, select the <code>main</code> branch, and save. Your site is now live!</li>
+          </ol>
+        </div>
+      )}
+
       <div className="card" style={{ padding: '40px', textAlign: 'center', marginBottom: 32, background: 'radial-gradient(circle at top, rgba(99, 102, 241, 0.08) 0%, rgba(16, 16, 28, 0.7) 100%)' }}>
         <div style={{ width: 90, height: 90, borderRadius: '50%', background: 'linear-gradient(135deg,var(--violet),var(--mint))', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2rem', fontWeight: 800, color: '#fff', boxShadow: '0 8px 24px rgba(99, 102, 241, 0.25)' }}>
           {profile.name?.[0] || 'S'}
@@ -618,6 +634,7 @@ export function MarketTrends() {
   const [loading, setLoading] = useState(false);
   const [liveJobs, setLiveJobs] = useState([]);
   const [liveStatus, setLiveStatus] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const generateInsights = async () => {
     setLoading(true);
     const result = await aiAnalyze({ skills: db.skills, resumeSkills: db.resumeData?.skills, projects: db.projects, trends }, 'Based on my skills and projects, identify top hiring roles, salary range, missing skills, and a 30-day learning path.');
@@ -636,13 +653,14 @@ export function MarketTrends() {
   ];
 
   const fetchLiveJobs = async () => {
-    setLiveStatus('Fetching live openings...');
+    if (!searchQuery.trim()) { setLiveStatus('Please enter a job title or keyword.'); return; }
+    setLiveStatus(`Fetching live openings for "${searchQuery}"...`);
     try {
-      const res = await fetch('https://remotive.com/api/remote-jobs?limit=8');
+      const res = await fetch(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(searchQuery)}&limit=12`);
       if (!res.ok) throw new Error('Remote jobs API unavailable');
       const data = await res.json();
-      setLiveJobs((data.jobs || []).slice(0, 8));
-      setLiveStatus(`Loaded ${(data.jobs || []).slice(0, 8).length} live remote roles from Remotive.`);
+      setLiveJobs((data.jobs || []).slice(0, 12));
+      setLiveStatus(`Loaded ${(data.jobs || []).slice(0, 12).length} live remote roles from Remotive.`);
     } catch (err) {
       setLiveStatus(`Live fetch unavailable: ${err.message}. Showing StudentOS demand index.`);
     }
@@ -665,15 +683,24 @@ export function MarketTrends() {
       </div>
 
       <div className="card mb-4">
-        <div className="section-title"><TrendingUp size={16} /> Live Openings</div>
-        <button className="btn btn-secondary btn-sm" onClick={fetchLiveJobs}><RefreshCw size={14} /> Fetch live roles</button>
-        {liveStatus && <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: 10 }}>{liveStatus}</p>}
+        <div className="section-title"><TrendingUp size={16} /> Live Openings Search</div>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+          <input className="input" style={{ flex: 1 }} placeholder="Search for 'React', 'Python', 'Product Manager'..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && fetchLiveJobs()} />
+          <button className="btn btn-primary" onClick={fetchLiveJobs}><Search size={14} /> Search Live Roles</button>
+        </div>
+        {liveStatus && <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: 4, marginBottom: 10 }}>{liveStatus}</p>}
         {liveJobs.length > 0 && (
-          <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+          <div style={{ display: 'grid', gap: 12, marginTop: 12 }}>
             {liveJobs.map(job => (
-              <a key={job.id} href={job.url} target="_blank" rel="noreferrer" className="card" style={{ padding: 12 }}>
-                <div style={{ fontWeight: 800 }}>{job.title}</div>
-                <div className="text-muted" style={{ fontSize: '0.78rem' }}>{job.company_name} - {job.category}</div>
+              <a key={job.id} href={job.url} target="_blank" rel="noreferrer" className="card card-glow" style={{ padding: 14, display: 'flex', gap: 14, alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                {job.company_logo && <img src={job.company_logo} alt="Logo" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'contain', background: '#fff' }} />}
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, color: 'var(--violet2)', fontSize: '1.05rem', marginBottom: 2 }}>{job.title}</div>
+                  <div className="text-muted" style={{ fontSize: '0.8rem', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <span>{job.company_name}</span> • <span>{job.job_type || 'Full-time'}</span> • <span>{job.candidate_required_location || 'Remote'}</span>
+                  </div>
+                </div>
+                <div style={{ background: 'var(--surface2)', padding: '6px 12px', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600 }}>Apply</div>
               </a>
             ))}
           </div>
@@ -706,18 +733,26 @@ export function MarketTrends() {
 
 export function Settings() {
   const db = useDB();
-  const [apiKey, setApiKey] = useState(db.settings?.groqApiKey || '');
+  const [groqKey, setGroqKey] = useState(db.settings?.groqApiKey || '');
+  const [openAIKey, setOpenAIKeyLocal] = useState(getOpenAIApiKey());
+  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'openai');
+  const [agentName, setAgentName] = useState(db.settings?.agentName || 'Jarvis');
 
   useEffect(() => {
-    setApiKey(db.settings?.groqApiKey || '');
-  }, [db.settings?.groqApiKey]);
+    setGroqKey(db.settings?.groqApiKey || '');
+    setAiProvider(db.settings?.aiProvider || 'openai');
+    setAgentName(db.settings?.agentName || 'Jarvis');
+  }, [db.settings]);
 
-  const saveKey = () => {
+  const saveKeys = () => {
     mutateDB(d => { 
       if (!d.settings) d.settings = {}; 
-      d.settings.groqApiKey = apiKey; 
-    }, 'Updated Groq API key');
-    toast.success('API key saved');
+      d.settings.groqApiKey = groqKey; 
+      d.settings.aiProvider = aiProvider;
+      d.settings.agentName = agentName;
+    }, 'Updated AI Integration settings');
+    setOpenAIApiKey(openAIKey);
+    toast.success('AI settings saved');
   };
 
   const handleImport = (e) => {
@@ -732,14 +767,37 @@ export function Settings() {
 
       <div className="card mb-4" style={{ background: 'rgba(255,255,255,0.01)' }}>
         <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--violet2)' }}>
-          🤖 Groq AI Integration
+          🤖 Unified AI Integration
         </div>
         <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 16, lineHeight: 1.5 }}>
-          Power your AI assistant, mock interview prompts, and studies with a Groq API Key. Get a free key at <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ textDecoration: 'underline', color: 'var(--violet2)' }}>console.groq.com</a>.
+          Set up your API keys to power StudentOS intelligence. Select your preferred provider for Chat and Code Analysis.
         </p>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <input className="input" type="password" placeholder="Enter gsk_..." value={apiKey} onChange={e => setApiKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
-          <button className="btn btn-primary" onClick={saveKey} style={{ whiteSpace: 'nowrap' }}><Save size={14} /> Save Key</button>
+
+        <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer', padding: '6px 12px', background: aiProvider === 'openai' ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${aiProvider === 'openai' ? 'var(--violet2)' : 'transparent'}`, borderRadius: 8 }}>
+            <input type="radio" name="ai-provider" checked={aiProvider === 'openai'} onChange={() => setAiProvider('openai')} />
+            🧠 GPT-4o (OpenAI)
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer', padding: '6px 12px', background: aiProvider === 'groq' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${aiProvider === 'groq' ? 'var(--mint)' : 'transparent'}`, borderRadius: 8 }}>
+            <input type="radio" name="ai-provider" checked={aiProvider === 'groq'} onChange={() => setAiProvider('groq')} />
+            ⚡ LLaMA 3 (Groq)
+          </label>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>OpenAI API Key (sk-...)</label>
+            <input className="input" type="password" placeholder="sk-..." value={openAIKey} onChange={e => setOpenAIKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
+          </div>
+          <div>
+            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Groq API Key (gsk-...)</label>
+            <input className="input" type="password" placeholder="gsk-..." value={groqKey} onChange={e => setGroqKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
+          </div>
+          <div>
+            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Agent Name (e.g. Jarvis, Friday)</label>
+            <input className="input" placeholder="Jarvis" value={agentName} onChange={e => setAgentName(e.target.value)} />
+          </div>
+          <button className="btn btn-primary" onClick={saveKeys} style={{ alignSelf: 'flex-start', marginTop: 4 }}><Save size={14} /> Save AI Settings</button>
         </div>
       </div>
 
