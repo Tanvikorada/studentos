@@ -2,7 +2,7 @@ import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey } from '../store';
-import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck } from 'lucide-react';
+import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck, LogOut } from 'lucide-react';
 
 export function ResumeBuilder() {
   const db = useDB();
