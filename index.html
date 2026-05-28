@@ -13,6 +13,14 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      window.addEventListener('error', function(event) {
+        document.body.innerHTML = '<div style="background:red;color:white;padding:20px;z-index:99999;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:auto;"><h1 style="font-size:24px">CRASH REPORT</h1><pre style="white-space:pre-wrap;word-break:break-word;">' + event.error?.stack + '\n\n' + event.message + '</pre></div>';
+      });
+      window.addEventListener('unhandledrejection', function(event) {
+        document.body.innerHTML = '<div style="background:red;color:white;padding:20px;z-index:99999;position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:auto;"><h1 style="font-size:24px">UNHANDLED PROMISE REJECTION</h1><pre style="white-space:pre-wrap;word-break:break-word;">' + (event.reason?.stack || event.reason) + '</pre></div>';
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
