@@ -42,6 +42,10 @@ const defaultDB = {
     skills: [],
     projects: [],
   },
+  tasks: [],
+  notes: [],
+  attendance: [],
+  recentActivity: [],
   chatHistory: [],
   chatThreads: {
     general: [],

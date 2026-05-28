@@ -123,9 +123,9 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
 
   const semesters = db.gpa?.semesters || [];
   const cgpa = parseFloat(calcCGPA(semesters)) || 0;
-  const overdueTasks = db.tasks.filter(t => !t.done && t.due && new Date(t.due) < new Date());
-  const doneTasks = db.tasks.filter(t => t.done).length;
-  const totalTasks = db.tasks.length;
+  const overdueTasks = (db.tasks || []).filter(t => !t.done && t.due && new Date(t.due) < new Date());
+  const doneTasks = (db.tasks || []).filter(t => t.done).length;
+  const totalTasks = (db.tasks || []).length;
   const taskPercent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
 
   const attRecords = db.attendance || [];
@@ -302,7 +302,7 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
 
         <motion.div variants={item} className="card">
           <div className="section-title"><Clock size={16} /> Recent Activity</div>
-          {db.recentActivity.slice(0, 6).map((a, i) => (
+          {(db.recentActivity || []).slice(0, 6).map((a, i) => (
             <div key={i} style={{ display: 'flex', gap: 10, padding: '6px 0', borderBottom: '1px solid var(--border)', alignItems: 'flex-start' }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--violet)', marginTop: 6, flexShrink: 0 }} />
               <div>
