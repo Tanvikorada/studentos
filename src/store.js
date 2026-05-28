@@ -115,7 +115,10 @@ function mergeDefaults(base, incoming) {
   if (!isPlainObject(incoming)) return out;
 
   Object.keys(incoming).forEach((key) => {
-    if (isPlainObject(base[key]) && isPlainObject(incoming[key])) {
+    if (incoming[key] == null) {
+      // Keep base value if incoming is null or undefined
+      out[key] = out[key] !== undefined ? out[key] : incoming[key];
+    } else if (isPlainObject(base[key]) && isPlainObject(incoming[key])) {
       out[key] = mergeDefaults(base[key], incoming[key]);
     } else {
       out[key] = incoming[key];
