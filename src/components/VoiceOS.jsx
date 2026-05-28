@@ -12,17 +12,11 @@ export default function VoiceOS({ onNavigate }) {
   const db = useDB();
   const agentName = db.settings?.agentName || 'Jarvis';
 
+  if (!db.settings?.onboardingComplete) return null;
+
   useEffect(() => {
-    // First time onboarding greeting
-    if (!db.settings?.onboardingComplete) {
-      setTimeout(() => {
-        speakText(`Hello! I am ${agentName}, your AI assistant. You can click the bot icon to speak to me. I have full control to help you manage your timetable, tasks, profile, and more.`);
-        mutateDB(d => {
-          if (!d.settings) d.settings = {};
-          d.settings.onboardingComplete = true;
-        }, 'Completed voice onboarding');
-      }, 1500);
-    }
+    // We do not auto-complete onboarding here anymore
+    // The Onboarding component handles it.
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {

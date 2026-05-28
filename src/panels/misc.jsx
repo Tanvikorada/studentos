@@ -850,8 +850,18 @@ export function Settings() {
               <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>Clear all subjects, grades, tasks, notes and credentials</div>
             </div>
             <button className="btn btn-sm" style={{ background: 'rgba(244,63,94,0.1)', color: 'var(--red)', border: '1px solid rgba(244,63,94,0.2)', padding: '6px 14px', borderRadius: 8 }}
-              onClick={() => { if (window.confirm('Are you absolutely sure? This will wipe your local database permanently.')) resetDB(); }}>
+              onClick={() => { if (window.confirm('Are you absolutely sure? This will wipe your local database permanently.')) { localStorage.clear(); window.location.reload(); } }}>
               <Trash size={14} /> Wipe Everything
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+            <div>
+              <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>Lock Workspace</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>Secure your StudentOS and return to login screen</div>
+            </div>
+            <button className="btn btn-primary btn-sm" onClick={() => { import('../store').then(m => m.lockDB()); }} style={{ background: 'var(--bg2)', color: 'var(--text)' }}>
+              <LogOut size={14} /> Logout
             </button>
           </div>
         </div>

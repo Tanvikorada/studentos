@@ -150,7 +150,7 @@ export default function Shell() {
           <AnimatePresence mode="wait">
             <motion.div key={panel} className="cgpt-content-inner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               <Suspense fallback={<div className="empty-state">Loading...</div>}>
-                <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} />
+                <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} activePanel={panel} />
               </Suspense>
             </motion.div>
           </AnimatePresence>
@@ -239,7 +239,7 @@ export default function Shell() {
            <AnimatePresence mode="wait">
               <motion.div key={panel} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <Suspense fallback={<div className="empty-state">Loading...</div>}>
-                  <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} />
+                  <ActivePanel onNavigate={setPanel} onOpenAI={() => setAiOpen(true)} activePanel={panel} />
                 </Suspense>
               </motion.div>
            </AnimatePresence>
