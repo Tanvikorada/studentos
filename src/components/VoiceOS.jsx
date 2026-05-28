@@ -126,19 +126,34 @@ Pending Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0}
       const jsonStr = res.replace(/```json/g, '').replace(/```/g, '').trim();
       const intent = JSON.parse(jsonStr);
 
+      const appendLog = (aiReply) => {
+        mutateDB(d => {
+          if (!d.chatThreads) d.chatThreads = { general: [] };
+          if (!d.chatThreads.general) d.chatThreads.general = [];
+          d.chatThreads.general.push({ role: 'user', content: text, display: text });
+          d.chatThreads.general.push({ role: 'assistant', content: aiReply });
+        }, 'Voice command logged');
+      };
+
       if (intent.action === 'navigate') {
         onNavigate(intent.panel);
         toast.success(`Opening ${intent.panel}...`);
         speakText(`Opening ${intent.panel}`);
+        appendLog(`*Navigated to ${intent.panel}*`);
       } else if (intent.action === 'mutate') {
         mutateDB(d => {
-          // Dynamically evaluate the AI's mutation code
           const fn = new Function('d', `"use strict";\n${intent.code}`);
           fn(d);
         }, `${agentName} updated data`);
-        if (intent.speakMsg) speakText(intent.speakMsg);
+        if (intent.speakMsg) {
+          speakText(intent.speakMsg);
+          appendLog(intent.speakMsg);
+        } else {
+          appendLog('*Executed data mutation*');
+        }
       } else if (intent.action === 'speak') {
         speakText(intent.text);
+        appendLog(intent.text);
       }
     } catch (e) {
       console.error(e);
