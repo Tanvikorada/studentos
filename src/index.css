@@ -2957,11 +2957,54 @@ select.input option {
 
   html, body { overflow: hidden; width: 100vw; height: 100dvh; }
 
-  /* Auth Screen */
-  .auth-screen { grid-template-columns: 1fr; }
-  .auth-art { display: none !important; }
-  .auth-form { padding: 24px 20px 40px; align-items: flex-start; overflow-y: auto; }
-  .auth-form-inner { max-width: 100%; }
+  /* Auth Screen - Rich Mobile Design */
+  .auth-screen { 
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .auth-art { 
+    display: flex !important;
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 0;
+    opacity: 0.6; /* Dim to let form be readable */
+    pointer-events: none; /* Let clicks pass to form if needed */
+    align-items: flex-end;
+    justify-content: center;
+    transform: scale(0.85) translateY(20%); /* Fit characters nicely in background */
+  }
+  
+  /* Hide the text below the characters on mobile */
+  .auth-art > div:nth-child(3),
+  .auth-art > div:nth-child(4) {
+    display: none !important;
+  }
+
+  .auth-form { 
+    grid-column: 1;
+    grid-row: 1;
+    z-index: 10;
+    padding: 32px 20px 40px; 
+    align-items: center; /* Center the form horizontally */
+    overflow-y: auto; 
+    background: rgba(18, 18, 18, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  
+  .auth-form-inner { 
+    max-width: 100%; 
+    width: 100%;
+    background: rgba(30, 30, 30, 0.85);
+    padding: 32px 24px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  }
 
   /* Modal as bottom sheet */
   .modal-overlay { align-items: flex-end; padding: 0; }
