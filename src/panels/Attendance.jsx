@@ -160,8 +160,9 @@ export default function Attendance() {
         </div>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {db.attendance.map(sub => {
+      <div className="card">
+        <div className="section-title">Subject Breakdown</div>
+        {(db.attendance || []).map(sub => {
           const { pct, present, total } = calcAttendance(sub.records);
           const color = getStatusColor(pct, sub.req);
           const info = classesNeeded(sub.records, sub.req);

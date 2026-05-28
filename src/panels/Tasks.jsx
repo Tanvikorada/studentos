@@ -54,7 +54,8 @@ export default function Tasks() {
   };
 
   const askScheduling = async (task) => {
-    const result = await aiAnalyze({ task, timetable: db.timetable, openTasks: db.tasks.filter(t => !t.done) }, 'When should I do this task? Suggest a practical time block using timetable gaps and deadline urgency.');
+    const openTasks = (db.tasks || []).filter(t => !t.done);
+    const result = await aiAnalyze({ task, timetable: db.timetable, openTasks }, 'When should I do this task? Suggest a practical time block using timetable gaps and deadline urgency.');
     toast.info(result.slice(0, 240));
   };
 
@@ -77,10 +78,10 @@ export default function Tasks() {
     mutateDB(d => { d.tasks = d.tasks.filter(t => t.id !== id); }, 'Deleted task');
   };
 
-  const colTasks = (colId) => db.tasks.filter(t => taskStatus(t) === colId);
+  const colTasks = (colId) => (db.tasks || []).filter(t => taskStatus(t) === colId);
   const weekAgo = Date.now() - 7 * 86400000;
-  const doneThisWeek = db.tasks.filter(t => t.done && t.completedAt && new Date(t.completedAt).getTime() >= weekAgo).length;
-  const completionRate = db.tasks.length ? Math.round((db.tasks.filter(t => t.done).length / db.tasks.length) * 100) : 0;
+  const doneThisWeek = (db.tasks || []).filter(t => t.done && t.completedAt && new Date(t.completedAt).getTime() >= weekAgo).length;
+  const completionRate = (db.tasks && db.tasks.length) ? Math.round(((db.tasks || []).filter(t => t.done).length / db.tasks.length) * 100) : 0;
 
   return (
     <div className="animate-fade">
@@ -94,7 +95,7 @@ export default function Tasks() {
       <div className="grid-3 mb-4">
         <div className="stat-card"><BarChart3 size={18} className="text-violet" /><div className="stat-value">{completionRate}%</div><div className="stat-label">Overall completion</div></div>
         <div className="stat-card"><CheckSquare size={18} className="text-mint" /><div className="stat-value">{doneThisWeek}</div><div className="stat-label">Finished this week</div></div>
-        <div className="stat-card"><Bell size={18} className="text-amber" /><div className="stat-value">{db.tasks.filter(t => !t.done && t.due && new Date(t.due) - Date.now() < 86400000).length}</div><div className="stat-label">Due within 24h</div></div>
+        <div className="stat-card"><Bell size={18} className="text-amber" /><div className="stat-value">{(db.tasks || []).filter(t => !t.done && t.due && new Date(t.due) - Date.now() < 86400000).length}</div><div className="stat-label">Due within 24h</div></div>
       </div>
 
       <AnimatePresence>

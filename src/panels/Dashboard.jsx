@@ -138,10 +138,10 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
   });
   const avgAtt = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 100;
 
-  const todoTasks = db.tasks.filter(t => !t.done).slice(0, 4);
-  const recentNotes = db.notes.slice(0, 3);
+  const todoTasks = (db.tasks || []).filter(t => !t.done).slice(0, 4);
+  const recentNotes = (db.notes || []).slice(0, 3);
   const streak = calcActivityStreak(db.productivity || []);
-  const nearestTask = db.tasks.filter(t => !t.done && t.due).sort((a, b) => new Date(a.due) - new Date(b.due))[0];
+  const nearestTask = (db.tasks || []).filter(t => !t.done && t.due).sort((a, b) => new Date(a.due) - new Date(b.due))[0];
   const todayKey = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
