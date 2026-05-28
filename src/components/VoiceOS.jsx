@@ -12,7 +12,6 @@ export default function VoiceOS({ onNavigate }) {
   const db = useDB();
   const agentName = db.settings?.agentName || 'Jarvis';
 
-  if (!db.settings?.onboardingComplete) return null;
 
   useEffect(() => {
     // We do not auto-complete onboarding here anymore
@@ -165,6 +164,8 @@ Pending Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0}
     synth.speak(utterance);
     toast.success(`${agentName} spoke.`);
   };
+
+  if (!db.settings?.onboardingComplete) return null;
 
   return (
     <div style={{ position: 'fixed', bottom: 30, right: 30, zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
