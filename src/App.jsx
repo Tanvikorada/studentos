@@ -4,6 +4,7 @@ import Splash from './components/Splash';
 import AuthScreen from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
 import Shell from './Shell';
+import ToastContainer from './components/Toast';
 import { useDB, isDBUnlocked, unlockDB } from './store';
 import './index.css';
 
@@ -41,6 +42,7 @@ export default function App() {
   };
 
   return (
+    <>
     <AnimatePresence mode="wait">
       {phase === 'splash' && (
         <motion.div key="splash" exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
@@ -64,5 +66,7 @@ export default function App() {
         </motion.div>
       )}
     </AnimatePresence>
+    <ToastContainer />
+    </>
   );
 }
