@@ -412,11 +412,14 @@ export function calcCGPA(semesters) {
   if (!semesters || semesters.length === 0) return '0.00';
   let totalPoints = 0, totalCredits = 0;
   semesters.forEach(sem => {
-    sem.subjects.forEach(sub => {
-      const gp = GRADE_POINTS[sub.grade] || 0;
-      totalPoints += gp * sub.credits;
-      totalCredits += sub.credits;
-    });
+    if (sem && sem.subjects && Array.isArray(sem.subjects)) {
+      sem.subjects.forEach(sub => {
+        const gp = GRADE_POINTS[sub.grade] || 0;
+        const credits = Number(sub.credits) || 0;
+        totalPoints += gp * credits;
+        totalCredits += credits;
+      });
+    }
   });
   return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
 }
