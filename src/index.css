@@ -2,7 +2,35 @@
 
 /* --- PREMIUM DESIGN SYSTEM & THEMES --- */
 
-[data-theme="chatgpt-style"], :root {
+:root {
+  --bg:          #09090b;
+  --bg-gradient: radial-gradient(circle at 50% -20%, #17112a 0%, #09090b 70%);
+  --surface:     rgba(255, 255, 255, 0.03);
+  --surface2:    rgba(255, 255, 255, 0.06);
+  --surface3:    rgba(255, 255, 255, 0.1);
+  --border:      rgba(255, 255, 255, 0.08);
+  --border2:     rgba(255, 255, 255, 0.15);
+  --violet:      #8b5cf6;
+  --violet2:     #a78bfa;
+  --mint:        #10b981;
+  --mint2:       #34d399;
+  --amber:       #fbbf24;
+  --red:         #ef4444;
+  --text:        #fafafa;
+  --text2:       #a1a1aa;
+  --text3:       #71717a;
+  
+  --sidebar-w:   260px;
+  --sidebar-c:   76px;
+  --header-h:    70px;
+  --radius:      16px;
+  --radius-sm:   10px;
+  --radius-lg:   24px;
+  --shadow:      0 8px 32px rgba(0, 0, 0, 0.3);
+  --glow:        0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+[data-theme="chatgpt-style"] {
   /* Mercury Colors */
   --color-mercury-blue: #5266eb;
   --color-ghost-blue: #cdddff;
@@ -26,20 +54,11 @@
   --violet2:     var(--color-ghost-blue);
   --mint:        #60a5fa;
   --mint2:       #3b82f6;
-  --amber:       #fbbf24;
-  --red:         #f87171;
   --text:        var(--color-starlight);
   --text2:       var(--color-silver);
   --text3:       var(--color-lead);
-  
-  --sidebar-w:   260px;
-  --sidebar-c:   76px;
-  --header-h:    70px;
   --radius:      16px;
-  --radius-sm:   10px;
-  --radius-lg:   24px;
   --shadow:      0 8px 32px rgba(0, 0, 0, 0.3);
-  --glow:        none;
 }
 
 [data-theme="claude-style"] {

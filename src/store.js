@@ -293,37 +293,20 @@ export function getDB() {
   return db;
 }
 
-export function getGroqApiKey() {
-  return getDB().settings?.groqApiKey || '';
+export function getGrokApiKey() {
+  return localStorage.getItem('studentos_grok_key') || '';
 }
 
-export function setGroqApiKey(apiKey) {
-  mutateDB(d => {
-    if (!d.settings) d.settings = {};
-    d.settings.groqApiKey = String(apiKey || '').trim();
-  }, 'Updated Groq API Key');
+export function setGrokApiKey(apiKey) {
+  localStorage.setItem('studentos_grok_key', String(apiKey || '').trim());
 }
 
 export function getOpenAIApiKey() {
-  return getDB().settings?.openaiApiKey || '';
+  return localStorage.getItem('studentos_openai_key') || '';
 }
 
 export function setOpenAIApiKey(apiKey) {
-  mutateDB(d => {
-    if (!d.settings) d.settings = {};
-    d.settings.openaiApiKey = String(apiKey || '').trim();
-  }, 'Updated OpenAI API Key');
-}
-
-export function getGeminiApiKey() {
-  return getDB().settings?.geminiApiKey || '';
-}
-
-export function setGeminiApiKey(apiKey) {
-  mutateDB(d => {
-    if (!d.settings) d.settings = {};
-    d.settings.geminiApiKey = String(apiKey || '').trim();
-  }, 'Updated Gemini API Key');
+  localStorage.setItem('studentos_openai_key', String(apiKey || '').trim());
 }
 
 export function subscribeDB(fn) {
@@ -504,24 +487,23 @@ export async function searchWeb(query) {
   }
 }
 
-export async function callGroq(messages, systemPrompt = '') {
-  const apiKey = getGroqApiKey();
+export async function callGrok(messages, systemPrompt = '') {
+  const apiKey = getGrokApiKey();
   if (!apiKey) {
-    return "No Groq API key set. Go to Settings and add your Groq API key to enable AI features.";
+    return "No Grok API key set. Go to Settings and add your Grok API key to enable AI features.";
   }
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'grok-2-latest',
         messages: systemPrompt
           ? [{ role: 'system', content: systemPrompt }, ...messages]
           : messages,
-        max_tokens: 1024,
       }),
     });
     if (!response.ok) {
@@ -544,39 +526,21 @@ export async function callOpenAI(messages, systemPrompt = '') {
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: 'gpt-4o',
-        messages: systemPrompt ? [{ role: 'system', content: systemPrompt }, ...messages] : messages,
-        max_tokens: 1024,
-      }),
+        messages: systemPrompt ? [{ role: 'system', content: systemPrompt }, ...messages] : messages
+      })
     });
     if (!response.ok) throw new Error((await response.json()).error?.message || 'OpenAI API error');
-    return (await response.json()).choices[0]?.message?.content || 'No response';
-  } catch (err) { return `OpenAI Error: ${err.message}`; }
-}
-
-
-export async function callGemini(messages, systemPrompt = '') {
-  const apiKey = getGeminiApiKey();
-  if (!apiKey) return "No Gemini API key set. Add it in Settings to use Gemini features.";
-  try {
-    const contents = [
-      ...(systemPrompt ? [{ role: 'user', parts: [{ text: systemPrompt }] }, { role: 'model', parts: [{ text: 'Understood.' }] }] : []),
-      ...messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
-    ];
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents }) }
-    );
-    if (!response.ok) throw new Error((await response.json()).error?.message || 'Gemini API error');
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
-  } catch (err) { return `Gemini Error: ${err.message}`; }
+    return data.choices[0]?.message?.content || 'No response';
+  } catch(err) {
+    return `Error: ${err.message}`;
+  }
 }
 
 export async function callAI(messages, systemPrompt = '') {
-  const provider = getDB().settings?.aiProvider || 'groq';
+  const provider = getDB().settings?.aiProvider || 'grok';
   if (provider === 'openai') return callOpenAI(messages, systemPrompt);
-  if (provider === 'gemini') return callGemini(messages, systemPrompt);
-  return callGroq(messages, systemPrompt);
+  return callGrok(messages, systemPrompt);
 }
 
 export function buildStudentContext(sourceDB = getDB()) {

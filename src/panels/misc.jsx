@@ -733,26 +733,22 @@ export function MarketTrends() {
 
 export function Settings() {
   const db = useDB();
-  const [groqKey, setGroqKey] = useState(db.settings?.groqApiKey || '');
+  const [grokKey, setGrokKeyLocal] = useState(getGrokApiKey());
   const [openAIKey, setOpenAIKeyLocal] = useState(getOpenAIApiKey());
-  const [geminiKey, setGeminiKey] = useState(db.settings?.geminiApiKey || '');
-  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'groq');
+  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'grok');
 
   useEffect(() => {
-    setGroqKey(db.settings?.groqApiKey || '');
-    setGeminiKey(db.settings?.geminiApiKey || '');
-    setAiProvider(db.settings?.aiProvider || 'groq');
+    setAiProvider(db.settings?.aiProvider || 'grok');
   }, [db.settings]);
 
   const saveKeys = () => {
     mutateDB(d => { 
       if (!d.settings) d.settings = {}; 
-      d.settings.groqApiKey = groqKey; 
-      d.settings.geminiApiKey = geminiKey;
       d.settings.aiProvider = aiProvider;
     }, 'Updated AI Integration settings');
+    setGrokApiKey(grokKey);
     setOpenAIApiKey(openAIKey);
-    toast.success('AI settings saved');
+    toast.success('AI settings saved securely to browser');
   };
 
   const handleImport = (e) => {
@@ -770,14 +766,13 @@ export function Settings() {
           🤖 AI Integration
         </div>
         <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 16, lineHeight: 1.5 }}>
-          Connect an AI provider to enable personalized intelligence across StudentOS. Groq is free and fast — recommended to start.
+          Connect an AI provider to enable personalized intelligence across StudentOS. Grok 2 is fast and powerful.
         </p>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {[
-            { id: 'groq', label: '⚡ Groq (Free)', desc: 'LLaMA 3 — fast & free', color: 'var(--mint)' },
+            { id: 'grok', label: '⚡ Grok (xAI)', desc: 'Grok-2 Latest', color: 'var(--mint)' },
             { id: 'openai', label: '🧠 OpenAI GPT-4o', desc: 'Most capable', color: 'var(--violet2)' },
-            { id: 'gemini', label: '✨ Gemini 1.5', desc: 'Google AI', color: 'var(--amber)' },
           ].map(p => (
             <label key={p.id} style={{
               display: 'flex', flexDirection: 'column', gap: 2, fontSize: '0.8rem', cursor: 'pointer',
@@ -794,19 +789,19 @@ export function Settings() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div>
-            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Groq API Key (gsk-...) — <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>Get free key</a></label>
-            <input className="input" type="password" placeholder="gsk-..." value={groqKey} onChange={e => setGroqKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
-          </div>
-          <div>
-            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>OpenAI API Key (sk-...)</label>
-            <input className="input" type="password" placeholder="sk-..." value={openAIKey} onChange={e => setOpenAIKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
-          </div>
-          <div>
-            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Gemini API Key — <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--amber)' }}>Get key</a></label>
-            <input className="input" type="password" placeholder="AIza..." value={geminiKey} onChange={e => setGeminiKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
-          </div>
-          <button className="btn btn-primary" onClick={saveKeys} style={{ alignSelf: 'flex-start', marginTop: 4 }}><Save size={14} /> Save AI Settings</button>
+          {aiProvider === 'grok' && (
+            <div>
+              <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Grok API Key (xoxb-...) — <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>Get key</a></label>
+              <input className="input" type="password" placeholder="xoxb-..." value={grokKey} onChange={e => setGrokKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
+            </div>
+          )}
+          {aiProvider === 'openai' && (
+            <div>
+              <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>OpenAI API Key (sk-...)</label>
+              <input className="input" type="password" placeholder="sk-..." value={openAIKey} onChange={e => setOpenAIKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
+            </div>
+          )}
+          <button className="btn btn-primary" onClick={saveKeys} style={{ alignSelf: 'flex-start', marginTop: 4 }}>Save AI Settings</button>
         </div>
       </div>
 
