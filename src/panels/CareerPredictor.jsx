@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useDB, mutateDB, toast, calcCGPA, addXP, callGroq, aiAnalyze } from '../store';
 import { Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
-import { Plus, Trash2, Zap, MessageCircle, Link as LinkIcon, CalendarClock } from 'lucide-react';
+import { Plus, Trash2, Zap, MessageCircle, Link as LinkIcon, CalendarClock, Sparkles } from 'lucide-react';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
