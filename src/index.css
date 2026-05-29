@@ -3,23 +3,7 @@
 /* --- PREMIUM DESIGN SYSTEM & THEMES --- */
 
 :root {
-  --bg:          #09090b;
-  --bg-gradient: radial-gradient(circle at 50% -20%, #17112a 0%, #09090b 70%);
-  --surface:     rgba(255, 255, 255, 0.03);
-  --surface2:    rgba(255, 255, 255, 0.06);
-  --surface3:    rgba(255, 255, 255, 0.1);
-  --border:      rgba(255, 255, 255, 0.08);
-  --border2:     rgba(255, 255, 255, 0.15);
-  --violet:      #8b5cf6;
-  --violet2:     #a78bfa;
-  --mint:        #10b981;
-  --mint2:       #34d399;
-  --amber:       #fbbf24;
-  --red:         #ef4444;
-  --text:        #fafafa;
-  --text2:       #a1a1aa;
-  --text3:       #71717a;
-  
+  /* Default Structural Values */
   --sidebar-w:   260px;
   --sidebar-c:   76px;
   --header-h:    70px;
@@ -27,7 +11,25 @@
   --radius-sm:   10px;
   --radius-lg:   24px;
   --shadow:      0 8px 32px rgba(0, 0, 0, 0.3);
-  --glow:        0 0 20px rgba(139, 92, 246, 0.15);
+  --glow:        none;
+
+  /* Default Colors (Fallback to Dark Mode) */
+  --bg:          #1e1e2a;
+  --bg-gradient: none;
+  --surface:     #272735;
+  --surface2:    #2a2a38;
+  --surface3:    #303040;
+  --border:      rgba(112, 112, 125, 0.3);
+  --border2:     rgba(112, 112, 125, 0.5);
+  --violet:      #5266eb;
+  --violet2:     #cdddff;
+  --mint:        #60a5fa;
+  --mint2:       #3b82f6;
+  --amber:       #fbbf24;
+  --red:         #f87171;
+  --text:        #ededf3;
+  --text2:       #c3c3cc;
+  --text3:       #70707d;
 }
 
 [data-theme="chatgpt-style"] {
@@ -54,11 +56,20 @@
   --violet2:     var(--color-ghost-blue);
   --mint:        #60a5fa;
   --mint2:       #3b82f6;
+  --amber:       #fbbf24;
+  --red:         #f87171;
   --text:        var(--color-starlight);
   --text2:       var(--color-silver);
   --text3:       var(--color-lead);
+  
+  --sidebar-w:   260px;
+  --sidebar-c:   76px;
+  --header-h:    70px;
   --radius:      16px;
+  --radius-sm:   10px;
+  --radius-lg:   24px;
   --shadow:      0 8px 32px rgba(0, 0, 0, 0.3);
+  --glow:        none;
 }
 
 [data-theme="claude-style"] {
@@ -737,6 +748,23 @@ select.input option {
 .stat-value {
   font-size: 2.2rem;
   font-weight: 700;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  line-height: 1.1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.02em;
+}
+
+/* Kanban Board & Active States */
+.kanban-board {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
   padding-bottom: 12px;
 }
 
