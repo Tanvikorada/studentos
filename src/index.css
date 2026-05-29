@@ -737,23 +737,6 @@ select.input option {
 .stat-value {
   font-size: 2.2rem;
   font-weight: 700;
-  font-family: 'Instrument Serif', serif;
-  font-style: italic;
-  line-height: 1.1;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text2);
-  letter-spacing: 0.02em;
-}
-
-/* Kanban Board & Active States */
-.kanban-board {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
   padding-bottom: 12px;
 }
 

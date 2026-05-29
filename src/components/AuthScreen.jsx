@@ -236,7 +236,7 @@ export default function AuthScreen({ onAuth, onLocal }) {
           <Characters isTypingEmail={isTypingEmail} isTypingPassword={isTypingPassword} showPassword={showPwd} />
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
             style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', maxWidth: 320 }}>
-            <p style={{ fontSize: '0.875rem' }}>Your academic command center. Track grades, build your career, and get AI-powered insights — all in one place.</p>
+            <p style={{ fontSize: '0.875rem' }}>Track grades, build your career, and get AI-powered insights — all in one place.</p>
           </motion.div>
         </div>
         <div style={{ position: 'absolute', bottom: 24, display: 'flex', gap: 24, fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>

@@ -108,7 +108,7 @@ export default function Splash({ onDone }) {
                 margin: '0 0 24px 0',
                 maxWidth: 900
               }}>
-                Mountain Top Command Center
+                Welcome to StudentOS
               </motion.h1>
               
               <motion.p 
