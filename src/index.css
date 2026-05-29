@@ -35,10 +35,10 @@
   --sidebar-w:   260px;
   --sidebar-c:   76px;
   --header-h:    70px;
-  --radius:      4px;
-  --radius-sm:   4px;
-  --radius-lg:   8px;
-  --shadow:      none;
+  --radius:      16px;
+  --radius-sm:   10px;
+  --radius-lg:   24px;
+  --shadow:      0 8px 32px rgba(0, 0, 0, 0.3);
   --glow:        none;
 }
 
