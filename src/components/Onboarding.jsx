@@ -223,8 +223,20 @@ export default function Onboarding({ onDone }) {
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button className="btn btn-secondary" onClick={() => setStep(2)}>Back</button>
                 {syllabusText.trim() && !syllabusResult && (
-                  <button className="btn btn-secondary" onClick={handleSyllabusAnalyze} disabled={syllabusLoading || !hasValidKey}>
-                    {syllabusLoading ? '...' : <><Sparkles size={14} /> Analyze</>}
+                  <button className="btn btn-secondary" onClick={handleSyllabusAnalyze} disabled={syllabusLoading || !hasValidKey} style={{ position: 'relative', overflow: 'hidden' }}>
+                    {syllabusLoading ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <motion.div
+                          animate={{ x: [-20, 100] }}
+                          transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                          style={{
+                            position: 'absolute', top: 0, bottom: 0, left: 0, width: '40%',
+                            background: 'linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent)',
+                          }}
+                        />
+                        <Sparkles size={14} className="animate-pulse" /> Scanning...
+                      </div>
+                    ) : <><Sparkles size={14} /> Analyze</>}
                   </button>
                 )}
                 <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={() => setStep(4)}>

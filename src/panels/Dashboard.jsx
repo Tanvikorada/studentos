@@ -261,16 +261,16 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
           {streak > 0 && <span style={{ marginLeft: 12, color: 'var(--amber)', fontWeight: 700 }}>🔥 {streak} day streak</span>}
         </p>
       </div>
-
-      {/* AI Briefing + Smart Priorities Row */}
-      <motion.div variants={stagger} initial="hidden" animate="show" className="grid-2 mb-6">
-        {/* AI Briefing */}
-        <motion.div variants={fadeUp} className="card" style={{
-          borderLeft: '3px solid var(--violet)',
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.05) 0%, var(--surface) 100%)',
+      {/* Cinematic Bento Grid Command Center */}
+      <motion.div variants={stagger} initial="hidden" animate="show" className="bento-grid mb-6">
+        
+        {/* Hero Cell: AI Briefing */}
+        <motion.div variants={fadeUp} className="card bento-col-8" style={{
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, var(--surface) 100%)',
+          display: 'flex', flexDirection: 'column'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-            <div className="section-title"><Sparkles size={15} /> AI Daily Briefing</div>
+            <div className="section-title"><Sparkles size={16} color="var(--violet)" /> AI Daily Briefing</div>
             {!hasKey && (
               <button className="btn btn-secondary btn-sm" onClick={() => onNavigate?.('settings')}>
                 Connect AI
@@ -278,85 +278,86 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
             )}
           </div>
           {briefingLoading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'center' }}>
               {[80, 65, 90, 70].map((w, i) => (
-                <motion.div key={i} animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2 }}
-                  style={{ height: 12, width: `${w}%`, background: 'var(--surface3)', borderRadius: 6 }} />
+                <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                  style={{ height: 14, width: `${w}%`, background: 'var(--surface3)', borderRadius: 8 }} />
               ))}
             </div>
           ) : briefing ? (
-            <div style={{ fontSize: '0.875rem', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{briefing}</div>
+            <div style={{ fontSize: '0.9rem', lineHeight: 1.8, whiteSpace: 'pre-line', color: 'var(--text)', opacity: 0.9 }}>{briefing}</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div className="text-muted" style={{ fontSize: '0.875rem', lineHeight: 1.7 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'center' }}>
+              <div className="text-muted" style={{ fontSize: '0.9rem', lineHeight: 1.7 }}>
                 Connect an AI provider to unlock personalized daily intelligence — deadline alerts, attendance risks, and study suggestions.
               </div>
-              <button className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start', marginTop: 4 }} onClick={() => onNavigate?.('settings')}>
-                Set up AI <ArrowRight size={13} />
+              <button className="btn btn-primary btn-sm" style={{ alignSelf: 'flex-start', marginTop: 8 }} onClick={() => onNavigate?.('settings')}>
+                Set up AI <ArrowRight size={14} />
               </button>
             </div>
           )}
         </motion.div>
 
         {/* Smart Priorities */}
-        <motion.div variants={fadeUp} className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div className="section-title"><Zap size={15} /> Smart Priorities</div>
+        <motion.div variants={fadeUp} className="card bento-col-4" style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div className="section-title"><Zap size={16} color="var(--amber)" /> Smart Priorities</div>
             {hasKey && (
-              <button className="btn btn-ghost btn-sm" onClick={generatePriorities} disabled={prioritiesLoading}>
+              <button className="btn btn-ghost btn-sm" onClick={generatePriorities} disabled={prioritiesLoading} style={{ padding: '4px 8px' }}>
                 {prioritiesLoading ? '...' : 'Refresh'}
               </button>
             )}
           </div>
           {priorities.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
               {priorities.map((p, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px',
-                    background: 'var(--surface2)', borderRadius: 8, fontSize: '0.85rem', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
+                    background: 'var(--surface2)', borderRadius: 10, fontSize: '0.85rem', cursor: 'pointer',
+                    transition: 'all 0.2s', border: '1px solid transparent'
                   }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border2)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; e.currentTarget.style.transform = 'none'; }}
                   onClick={() => onNavigate?.('planner')}
                 >
                   <div style={{
-                    width: 20, height: 20, borderRadius: '50%', background: 'var(--surface3)',
+                    width: 22, height: 22, borderRadius: '50%', background: 'var(--surface3)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', flexShrink: 0,
+                    fontSize: '0.7rem', fontWeight: 800, color: 'var(--text3)', flexShrink: 0,
                   }}>{i + 1}</div>
-                  <span style={{ flex: 1 }}>{p}</span>
-                  <ChevronRight size={13} color="var(--text3)" />
+                  <span style={{ flex: 1, fontWeight: 500 }}>{p}</span>
+                  <ChevronRight size={14} color="var(--text3)" />
                 </motion.div>
               ))}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
               {!hasKey ? (
-                <div className="text-muted" style={{ fontSize: '0.85rem' }}>
+                <div className="text-muted" style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>
                   AI-generated priority suggestions will appear here once you connect an AI provider.
                 </div>
               ) : (
                 [1, 2, 3, 4].map(i => (
-                  <motion.div key={i} animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.15 }}
-                    style={{ height: 36, background: 'var(--surface2)', borderRadius: 8 }} />
+                  <motion.div key={i} animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
+                    style={{ height: 42, background: 'var(--surface2)', borderRadius: 10 }} />
                 ))
               )}
             </div>
           )}
         </motion.div>
-      </motion.div>
 
-      {/* Academic Health */}
-      <motion.div variants={stagger} initial="hidden" animate="show" className="mb-6">
-        <motion.div variants={fadeUp} className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div className="section-title"><Brain size={15} /> Academic Health</div>
+        {/* Academic Health */}
+        <motion.div variants={fadeUp} className="card bento-col-8">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+            <div className="section-title"><Brain size={16} color="var(--mint)" /> Academic Health</div>
             {atRiskSubjects.length > 0 && (
-              <span className="badge" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--red)', fontSize: '0.72rem' }}>
+              <span className="badge" style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--red)', fontSize: '0.75rem', fontWeight: 700 }}>
                 {atRiskSubjects.length} subject{atRiskSubjects.length > 1 ? 's' : ''} at risk
               </span>
             )}
           </div>
-          <div className="grid-3" style={{ gap: 10 }}>
+          <div className="grid-3" style={{ gap: 12 }}>
             <HealthBar
               label="Cumulative GPA"
               value={cgpa > 0 ? cgpa.toFixed(2) : 0}
@@ -380,24 +381,21 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
             />
           </div>
         </motion.div>
-      </motion.div>
 
-      {/* Placement Readiness + Deadline */}
-      <motion.div variants={stagger} initial="hidden" animate="show" className="grid-2 mb-6">
-        <motion.div variants={fadeUp} className="card" style={{ cursor: 'pointer' }} onClick={() => onNavigate?.('career')}>
-          <div className="section-title" style={{ marginBottom: 16 }}><Target size={15} /> Placement Readiness</div>
+        {/* Placement Readiness */}
+        <motion.div variants={fadeUp} className="card bento-col-4" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column' }} onClick={() => onNavigate?.('career')}>
+          <div className="section-title" style={{ marginBottom: 18 }}><Target size={16} color="var(--violet)" /> Placement Readiness</div>
           <PlacementGauge score={placementScore} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 6, marginTop: 'auto', paddingTop: 16, flexWrap: 'wrap' }}>
             {[
               { label: 'Resume', done: !!(db.resumeData?.basics?.name) },
               { label: 'Projects', done: (db.projects || []).length > 0 },
               { label: 'Skills', done: (db.skills || []).length > 0 },
               { label: 'GitHub', done: !!db.github?.username },
-              { label: 'Interview', done: (db.interviewHistory || []).length > 0 },
             ].map(item => (
               <span key={item.label} style={{
-                fontSize: '0.7rem', padding: '3px 8px', borderRadius: 6, fontWeight: 700,
-                background: item.done ? 'rgba(16,185,129,0.12)' : 'var(--surface3)',
+                fontSize: '0.68rem', padding: '4px 10px', borderRadius: 99, fontWeight: 700,
+                background: item.done ? 'rgba(16,185,129,0.1)' : 'var(--surface3)',
                 color: item.done ? 'var(--mint)' : 'var(--text3)',
               }}>
                 {item.done ? '✓ ' : '○ '}{item.label}
@@ -405,9 +403,10 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
             ))}
           </div>
         </motion.div>
-
-        <motion.div variants={fadeUp} className="card">
-          <div className="section-title" style={{ marginBottom: 14 }}><AlertTriangle size={15} /> Deadline Alert</div>
+        {/* Deadline Alert */}
+        <motion.div variants={fadeUp} className="card bento-col-12" style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <div className="section-title" style={{ marginBottom: 14 }}><AlertTriangle size={15} color="var(--amber)" /> Deadline Alert</div>
           {nearestTask ? (
             <>
               <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 4 }}>{nearestTask.title}</div>
@@ -437,6 +436,7 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
               </button>
             </div>
           )}
+          </div>
         </motion.div>
       </motion.div>
 
