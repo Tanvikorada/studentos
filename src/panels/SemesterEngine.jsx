@@ -23,7 +23,7 @@ export default function SemesterEngine() {
   const [result, setResult] = useState(null);
   const [step, setStep] = useState('input'); // input | processing | done
 
-  const hasKey = !!(db.settings?.groqApiKey || db.settings?.openaiApiKey || db.settings?.geminiApiKey);
+  const hasKey = !!(window.localStorage.getItem('studentos_grok_key') || window.localStorage.getItem('studentos_openai_key'));
 
   const processSyllabus = async () => {
     if (!inputText.trim()) {
@@ -350,7 +350,7 @@ Return ONLY valid JSON, no markdown.`;
           <AlertTriangle size={24} color="var(--amber)" style={{ marginBottom: 12 }} />
           <div style={{ fontWeight: 700, marginBottom: 6 }}>API Key Required</div>
           <div className="text-muted" style={{ fontSize: '0.85rem', marginBottom: 16 }}>
-            Connect an AI provider in Settings to use the Semester Engine. Groq (free), OpenAI, or Gemini are all supported.
+            Connect an AI provider in Settings to use the Semester Engine. Grok or OpenAI are supported.
           </div>
           <button className="btn btn-primary btn-sm">Go to Settings →</button>
         </div>

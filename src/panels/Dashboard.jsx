@@ -167,7 +167,7 @@ export default function Dashboard({ onNavigate, onOpenAI }) {
   const streak = calcActivityStreak(db.productivity || []);
   const placementScore = calcPlacementScore(db);
   const todayKey = new Date().toISOString().split('T')[0];
-  const hasKey = !!(db.settings?.groqApiKey || db.settings?.openaiApiKey || db.settings?.geminiApiKey);
+  const hasKey = !!(window.localStorage.getItem('studentos_grok_key') || window.localStorage.getItem('studentos_openai_key'));
 
   // Auto-briefing
   useEffect(() => {

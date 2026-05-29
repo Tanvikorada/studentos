@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, toast, setGroqApiKey, setOpenAIApiKey, setGeminiApiKey, aiAnalyze } from '../store';
+import { mutateDB, toast, setGrokApiKey, setOpenAIApiKey, aiAnalyze } from '../store';
 import { CheckCircle, BookOpen, Briefcase, Target, ArrowRight, Sparkles, ExternalLink, FileText, Zap, ChevronRight, X } from 'lucide-react';
 
 const GOALS = [
@@ -17,27 +17,25 @@ const slideVariants = {
 
 export default function Onboarding({ onDone }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: '', college: '', dept: '', groqApiKey: '', openaiApiKey: '', geminiApiKey: '' });
+  const [form, setForm] = useState({ name: '', college: '', dept: '', grokApiKey: '', openaiApiKey: '' });
   const [goal, setGoal] = useState('balanced');
   const [syllabusText, setSyllabusText] = useState('');
   const [syllabusLoading, setSyllabusLoading] = useState(false);
   const [syllabusResult, setSyllabusResult] = useState(null);
-  const [providerSelected, setProviderSelected] = useState('groq');
+  const [providerSelected, setProviderSelected] = useState('grok');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const isGroqValid = form.groqApiKey?.startsWith('gsk_') && form.groqApiKey.length > 20;
+  const isGrokValid = form.grokApiKey?.startsWith('xoxb-') && form.grokApiKey.length > 20;
   const isOpenAIValid = form.openaiApiKey?.startsWith('sk-') && form.openaiApiKey.length > 20;
-  const isGeminiValid = form.geminiApiKey?.startsWith('AIza') && form.geminiApiKey.length > 20;
-  const hasValidKey = isGroqValid || isOpenAIValid || isGeminiValid;
+  const hasValidKey = isGrokValid || isOpenAIValid;
 
   const handleSyllabusAnalyze = async () => {
     if (!syllabusText.trim() || !hasValidKey) return;
     setSyllabusLoading(true);
     // Save keys first so AI can run
-    if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
+    if (form.grokApiKey) setGrokApiKey(form.grokApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
-    if (form.geminiApiKey) setGeminiApiKey(form.geminiApiKey);
 
     const raw = await aiAnalyze({ text: syllabusText },
       'Extract from this semester document: 1) subject names, 2) key deadlines with dates (YYYY-MM-DD format if possible). Return a JSON object: {"subjects": [{"name":"string"}], "deadlines": [{"title":"string","subject":"string","date":"string"}]}. Return only valid JSON.'
@@ -52,17 +50,16 @@ export default function Onboarding({ onDone }) {
   };
 
   const handleDone = () => {
-    if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
+    if (form.grokApiKey) setGrokApiKey(form.grokApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
-    if (form.geminiApiKey) setGeminiApiKey(form.geminiApiKey);
 
     mutateDB(d => {
       d.profile.name = form.name || d.profile.name;
       d.profile.college = form.college || d.profile.college;
       d.profile.dept = form.dept || d.profile.dept;
+      if (!d.settings) d.settings = {};
       d.settings.onboardingComplete = true;
-      if (isGroqValid) d.settings.aiProvider = 'groq';
-      else if (isGeminiValid) d.settings.aiProvider = 'gemini';
+      if (isGrokValid) d.settings.aiProvider = 'grok';
       else if (isOpenAIValid) d.settings.aiProvider = 'openai';
 
       // Apply syllabus results if available
@@ -269,32 +266,39 @@ export default function Onboarding({ onDone }) {
               {/* Provider tabs */}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                 {[
-                  { id: 'groq', label: '⚡ Groq', sub: 'Free · Recommended', link: 'https://console.groq.com' },
-                  { id: 'openai', label: '🧠 OpenAI', sub: 'GPT-4o', link: 'https://platform.openai.com/api-keys' },
-                  { id: 'gemini', label: '✨ Gemini', sub: 'Google AI', link: 'https://aistudio.google.com/app/apikey' },
+                  { id: 'grok', label: '⚡ Grok', sub: 'xAI Model', link: 'https://console.x.ai' },
+                  { id: 'openai', label: '🧠 OpenAI', sub: 'GPT-4o', link: 'https://platform.openai.com' },
                 ].map(p => (
-                  <button key={p.id} onClick={() => setProviderSelected(p.id)} style={{
-                    flex: 1, padding: '8px 10px', borderRadius: 10, fontSize: '0.78rem', cursor: 'pointer',
-                    fontWeight: 700, border: `1.5px solid ${providerSelected === p.id ? 'var(--violet2)' : 'var(--border)'}`,
-                    background: providerSelected === p.id ? 'rgba(124,58,237,0.1)' : 'var(--surface2)',
-                    color: 'var(--text)', transition: 'all 0.2s',
-                  }}>
-                    <div>{p.label}</div>
-                    <div style={{ fontWeight: 400, color: 'var(--text3)', fontSize: '0.68rem' }}>{p.sub}</div>
-                  </button>
+                  <div
+                    key={p.id}
+                    onClick={() => setProviderSelected(p.id)}
+                    className="card flex-row align-center justify-between pointer"
+                    style={{
+                      padding: '12px 16px',
+                      border: providerSelected === p.id ? '1px solid var(--violet2)' : '1px solid var(--border)',
+                      background: providerSelected === p.id ? 'rgba(139,92,246,0.1)' : 'transparent',
+                      opacity: providerSelected === p.id ? 1 : 0.6
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600 }}>{p.label}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>{p.sub}</div>
+                    </div>
+                    {providerSelected === p.id && <CheckCircle size={18} color="var(--violet2)" />}
+                  </div>
                 ))}
               </div>
 
-              {providerSelected === 'groq' && (
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <label className="label" style={{ margin: 0 }}>Groq API Key (gsk-...)</label>
-                    <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                      Get free key <ExternalLink size={11} />
+              {providerSelected === 'grok' && (
+                <div className="card" style={{ marginTop: 16, background: 'rgba(255,255,255,0.02)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <label className="label" style={{ margin: 0 }}>Grok API Key (xoxb-...)</label>
+                    <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      Get key <ExternalLink size={10} />
                     </a>
                   </div>
-                  <input className="input" type="password" placeholder="gsk-..." value={form.groqApiKey} onChange={e => set('groqApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
-                  {isGroqValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Groq key detected</div>}
+                  <input className="input" type="password" placeholder="xoxb-..." value={form.grokApiKey} onChange={e => set('grokApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
+                  {isGrokValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Grok key detected</div>}
                 </div>
               )}
               {providerSelected === 'openai' && (

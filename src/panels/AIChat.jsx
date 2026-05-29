@@ -235,7 +235,7 @@ Format with clear markdown. Be concise when the user asks a small question and d
         <input
           className="input"
           style={{ flex: 1 }}
-          placeholder="Ask anything... (add your Groq API key in Settings)"
+          placeholder="Ask anything... (add your Grok API key in Settings)"
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}

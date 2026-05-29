@@ -69,7 +69,7 @@ const defaultDB = {
     theme: 'chatgpt-style',
     notificationsEnabled: false,
     onboardingComplete: false,
-    aiProvider: 'groq',
+    aiProvider: 'grok',
     geminiApiKey: '',
   },
   productivity: [], // activity heatmap data
@@ -151,9 +151,9 @@ function migrateDB(raw) {
   const migrated = mergeDefaults(defaultDB, raw || {});
   migrated.schemaVersion = SCHEMA_VERSION;
 
-  if (migrated.settings?.groqApiKey) {
-    setGroqApiKey(migrated.settings.groqApiKey);
-    delete migrated.settings.groqApiKey;
+  if (migrated.settings?.grokApiKey) {
+    setGrokApiKey(migrated.settings.grokApiKey);
+    delete migrated.settings.grokApiKey;
   }
 
   migrated.tasks = (migrated.tasks || []).map(normalizeTask);

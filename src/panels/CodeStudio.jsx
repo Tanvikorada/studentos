@@ -293,8 +293,8 @@ export default function CodeStudio() {
               OpenAI API
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer' }}>
-              <input type="radio" name="ai-provider" checked={db.settings?.aiProvider === 'groq'} onChange={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.aiProvider='groq'})} />
-              Groq API
+              <input type="radio" name="ai-provider" checked={db.settings?.aiProvider === 'grok'} onChange={() => mutateDB(d => { if(!d.settings) d.settings={}; d.settings.aiProvider='grok'})} />
+              Grok API
             </label>
           </div>
           <div className="text-muted" style={{ fontSize: '0.7rem', marginTop: 8, lineHeight: 1.4 }}>

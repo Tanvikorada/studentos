@@ -1,7 +1,7 @@
 import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey, setGeminiApiKey, getGeminiApiKey } from '../store';
+import { mutateDB, exportDB, resetDB, toast, useDB, callGrok, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey } from '../store';
 import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck, LogOut } from 'lucide-react';
 
 export function ResumeBuilder() {
@@ -388,7 +388,7 @@ Start NOW with your first question.`;
     const firstMsg = [{ role: 'user', content: 'Start the interview.' }];
     setPhase('interview');
     setLoading(true);
-    const reply = await callGroq(firstMsg, sys);
+    const reply = await callGrok(firstMsg, sys);
     const aiMsg = { role: 'assistant', content: reply, sys };
     setMessages([aiMsg]);
     speak(reply);
@@ -405,7 +405,7 @@ Start NOW with your first question.`;
     setMessages(history);
     setLoading(true);
     const sys = messages[0]?.sys || '';
-    const reply = await callGroq(history.map(m => ({ role: m.role, content: m.content })), sys);
+    const reply = await callGrok(history.map(m => ({ role: m.role, content: m.content })), sys);
     const aiMsg = { role: 'assistant', content: reply, sys };
     const finalHistory = [...history, aiMsg];
     setMessages(finalHistory);
@@ -444,7 +444,7 @@ Start NOW with your first question.`;
     <div className="animate-fade" style={{ maxWidth: 680, margin: '0 auto', paddingBottom: 40 }}>
       <div style={{ marginBottom: 32 }}>
         <StyledText text="AI Mock Interviewer" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
-        <p style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>Voice-to-Voice • Groq LLaMA 3 • Real interview simulation</p>
+        <p style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>Voice-to-Voice • Grok • Real interview simulation</p>
       </div>
 
       <div className="card mb-4" style={{ borderColor: 'rgba(139,92,246,0.3)' }}>

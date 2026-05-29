@@ -1,6 +1,6 @@
 import StyledText from '../components/StyledText';
 import { useState, useEffect } from 'react';
-import { useDB, mutateDB, toast, calcCGPA, addXP, callGroq, aiAnalyze } from '../store';
+import { useDB, mutateDB, toast, calcCGPA, addXP, callGrok, aiAnalyze } from '../store';
 import { Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
 import { Plus, Trash2, Zap, MessageCircle, Link as LinkIcon, CalendarClock, Sparkles } from 'lucide-react';
@@ -145,7 +145,7 @@ Return:
 3. Coffee chat questions
 4. Referral ask timing`;
     setAiDraft('Generating draft...');
-    const draft = await callGroq([{ role: 'user', content: prompt }]);
+    const draft = await callGrok([{ role: 'user', content: prompt }]);
     setAiDraft(draft);
   };
 
