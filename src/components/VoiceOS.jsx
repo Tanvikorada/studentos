@@ -10,7 +10,7 @@ export default function VoiceOS({ onNavigate }) {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef(null);
   const db = useDB();
-  const agentName = db.settings?.agentName || 'Jarvis';
+  const agentName = 'AI Assistant';
 
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function VoiceOS({ onNavigate }) {
       recognitionRef.current?.stop();
       setListening(false);
     } else {
-      setTranscript(wakeWordMode ? `Wake Word Mode: Say "Hey ${agentName}"` : 'Listening...');
+      setTranscript(wakeWordMode ? `Wake Word Mode: Say "Hey AI"` : 'Listening...');
       recognitionRef.current?.start();
       setListening(true);
     }
@@ -82,7 +82,7 @@ export default function VoiceOS({ onNavigate }) {
 
   const processCommand = async (text) => {
     setProcessing(true);
-    const systemPrompt = `You are ${agentName}, the intelligent AI voice assistant for StudentOS.
+    const systemPrompt = `You are the StudentOS AI Assistant, an intelligent voice interface embedded in the StudentOS academic operating system.
 The user just said: "${text}"
 
 You have FULL control over the user's application database via JavaScript. 
@@ -162,7 +162,7 @@ Pending Tasks: ${db.tasks?.filter(t=>!t.completed)?.length || 0}
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
     synth.speak(utterance);
-    toast.success(`${agentName} spoke.`);
+    toast.success(`AI Assistant spoke.`);
   };
 
   if (!db.settings?.onboardingComplete) return null;

@@ -1,59 +1,112 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, toast, setGroqApiKey, setOpenAIApiKey } from '../store';
-import { CheckCircle, BookOpen, Briefcase, Target, ArrowRight, Sparkles, ExternalLink } from 'lucide-react';
+import { mutateDB, toast, setGroqApiKey, setOpenAIApiKey, setGeminiApiKey, aiAnalyze } from '../store';
+import { CheckCircle, BookOpen, Briefcase, Target, ArrowRight, Sparkles, ExternalLink, FileText, Zap, ChevronRight, X } from 'lucide-react';
 
 const GOALS = [
   { id: 'academics', icon: BookOpen, label: 'Academics First', desc: 'GPA, notes, attendance tracking' },
-  { id: 'career', icon: Briefcase, label: 'Career Focused', desc: 'Internships, projects, GitHub' },
+  { id: 'career', icon: Briefcase, label: 'Career Focused', desc: 'Placement prep, resume, interview' },
   { id: 'balanced', icon: Target, label: 'Balanced', desc: 'Everything, in harmony' },
 ];
 
-const AI_FEATURES = [
-  'Daily academic briefing', 'AI study plan generator',
-  'Mock interview coach', 'Note summarizer & flashcards',
-  'Task breakdown assistant', 'Code AI debugger',
-  'Career gap analysis', 'Attendance risk advisor',
-];
+const slideVariants = {
+  enter: { opacity: 0, x: 24 },
+  center: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -24 },
+};
 
 export default function Onboarding({ onDone }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: '', college: '', dept: '', groqApiKey: '', openaiApiKey: '' });
+  const [form, setForm] = useState({ name: '', college: '', dept: '', groqApiKey: '', openaiApiKey: '', geminiApiKey: '' });
   const [goal, setGoal] = useState('balanced');
+  const [syllabusText, setSyllabusText] = useState('');
+  const [syllabusLoading, setSyllabusLoading] = useState(false);
+  const [syllabusResult, setSyllabusResult] = useState(null);
+  const [providerSelected, setProviderSelected] = useState('groq');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const isGroqValid = form.groqApiKey?.startsWith('gsk_') && form.groqApiKey.length > 20;
   const isOpenAIValid = form.openaiApiKey?.startsWith('sk-') && form.openaiApiKey.length > 20;
-  const hasValidKey = isGroqValid || isOpenAIValid;
+  const isGeminiValid = form.geminiApiKey?.startsWith('AIza') && form.geminiApiKey.length > 20;
+  const hasValidKey = isGroqValid || isOpenAIValid || isGeminiValid;
+
+  const handleSyllabusAnalyze = async () => {
+    if (!syllabusText.trim() || !hasValidKey) return;
+    setSyllabusLoading(true);
+    // Save keys first so AI can run
+    if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
+    if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
+    if (form.geminiApiKey) setGeminiApiKey(form.geminiApiKey);
+
+    const raw = await aiAnalyze({ text: syllabusText },
+      'Extract from this semester document: 1) subject names, 2) key deadlines with dates (YYYY-MM-DD format if possible). Return a JSON object: {"subjects": [{"name":"string"}], "deadlines": [{"title":"string","subject":"string","date":"string"}]}. Return only valid JSON.'
+    );
+    try {
+      const parsed = JSON.parse(raw.replace(/```json/g, '').replace(/```/g, '').trim());
+      setSyllabusResult(parsed);
+    } catch {
+      setSyllabusResult({ subjects: [], deadlines: [], error: true });
+    }
+    setSyllabusLoading(false);
+  };
 
   const handleDone = () => {
     if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
-    
+    if (form.geminiApiKey) setGeminiApiKey(form.geminiApiKey);
+
     mutateDB(d => {
       d.profile.name = form.name || d.profile.name;
       d.profile.college = form.college || d.profile.college;
       d.profile.dept = form.dept || d.profile.dept;
       d.settings.onboardingComplete = true;
-      if (isOpenAIValid && !isGroqValid) d.settings.aiProvider = 'openai';
-      if (isGroqValid && !isOpenAIValid) d.settings.aiProvider = 'groq';
+      if (isGroqValid) d.settings.aiProvider = 'groq';
+      else if (isGeminiValid) d.settings.aiProvider = 'gemini';
+      else if (isOpenAIValid) d.settings.aiProvider = 'openai';
+
+      // Apply syllabus results if available
+      if (syllabusResult && !syllabusResult.error) {
+        if (syllabusResult.subjects?.length > 0) {
+          syllabusResult.subjects.forEach(s => {
+            d.attendance.push({ id: Date.now().toString() + Math.random(), name: s.name, code: '', credits: 3, minPct: 75, records: [] });
+          });
+        }
+        if (syllabusResult.deadlines?.length > 0) {
+          syllabusResult.deadlines.forEach(dl => {
+            d.tasks.push({
+              id: Date.now().toString() + Math.random(),
+              title: dl.title, desc: `Subject: ${dl.subject}`, cat: 'Academics',
+              due: dl.date?.match(/\d{4}-\d{2}-\d{2}/) ? dl.date : '',
+              priority: 'medium', done: false, status: 'todo', subtasks: [], recurrence: 'none',
+              createdAt: new Date().toISOString(), completedAt: '',
+            });
+          });
+        }
+      }
     }, 'Completed onboarding');
-    toast.success(`Welcome to StudentOS, ${form.name || 'Student'}!`);
+
+    toast.success(`Welcome to StudentOS, ${form.name || 'Student'}! Your academic OS is ready.`);
     onDone();
   };
 
+  const TOTAL_STEPS = 4;
+
   return (
     <div className="modal-overlay">
-      <motion.div className="modal" initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 25 }}>
-
-        {/* Progress bar */}
-        <div style={{ display: 'flex', gap: 6, marginBottom: 28 }}>
-          {[1, 2, 3, 4].map(s => (
-            <div key={s} style={{
+      <motion.div
+        className="modal"
+        initial={{ opacity: 0, scale: 0.92, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+        style={{ maxWidth: 520 }}
+      >
+        {/* Progress */}
+        <div style={{ display: 'flex', gap: 5, marginBottom: 28 }}>
+          {Array.from({ length: TOTAL_STEPS }, (_, i) => (
+            <div key={i} style={{
               flex: 1, height: 3, borderRadius: 2,
-              background: s <= step ? 'var(--violet)' : 'var(--surface3)',
+              background: i + 1 <= step ? 'var(--violet)' : 'var(--surface3)',
               transition: 'background 0.3s',
             }} />
           ))}
@@ -62,10 +115,13 @@ export default function Onboarding({ onDone }) {
         <AnimatePresence mode="wait">
           {/* Step 1 — Profile */}
           {step === 1 && (
-            <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 6 }}>Let's set up your space</h2>
-              <p className="text-muted" style={{ marginBottom: 24, fontSize: '0.875rem' }}>Tell us a bit about yourself</p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <motion.div key="step1" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: 8 }}>
+                Step 1 of {TOTAL_STEPS}
+              </div>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 6 }}>Let's set up your space</h2>
+              <p className="text-muted" style={{ marginBottom: 24, fontSize: '0.875rem' }}>Tell us a bit about yourself — this personalizes your entire experience.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label className="label">Your Name</label>
                   <input className="input" placeholder="Tanvi Sharma" value={form.name} onChange={e => set('name', e.target.value)} autoFocus />
@@ -87,27 +143,33 @@ export default function Onboarding({ onDone }) {
 
           {/* Step 2 — Goal */}
           {step === 2 && (
-            <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 6 }}>What's your primary goal?</h2>
-              <p className="text-muted" style={{ marginBottom: 24, fontSize: '0.875rem' }}>We'll optimize your dashboard accordingly</p>
+            <motion.div key="step2" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: 8 }}>
+                Step 2 of {TOTAL_STEPS}
+              </div>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 6 }}>What's your primary goal?</h2>
+              <p className="text-muted" style={{ marginBottom: 24, fontSize: '0.875rem' }}>We'll optimize your dashboard and AI recommendations accordingly.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {GOALS.map(g => (
-                  <div key={g.id} onClick={() => setGoal(g.id)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
-                      borderRadius: 'var(--radius)', cursor: 'pointer',
-                      background: goal === g.id ? 'rgba(124,58,237,0.15)' : 'var(--surface2)',
-                      border: `1px solid ${goal === g.id ? 'rgba(124,58,237,0.4)' : 'var(--border)'}`,
-                      transition: 'all 0.15s',
+                  <div key={g.id} onClick={() => setGoal(g.id)} style={{
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+                    borderRadius: 12, cursor: 'pointer',
+                    background: goal === g.id ? 'rgba(124,58,237,0.1)' : 'var(--surface2)',
+                    border: `1.5px solid ${goal === g.id ? 'var(--violet2)' : 'var(--border)'}`,
+                    transition: 'all 0.2s',
+                  }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 10, flexShrink: 0,
+                      background: goal === g.id ? 'rgba(124,58,237,0.2)' : 'var(--surface3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: goal === g.id ? 'rgba(124,58,237,0.2)' : 'var(--surface3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: goal === g.id ? 'var(--violet2)' : 'var(--text3)' }}>
-                      <g.icon size={18} />
+                      <g.icon size={18} color={goal === g.id ? 'var(--violet)' : 'var(--text3)'} />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.875rem' }}>{g.label}</div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>{g.desc}</div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{g.label}</div>
+                      <div className="text-muted" style={{ fontSize: '0.8rem' }}>{g.desc}</div>
                     </div>
-                    {goal === g.id && <CheckCircle size={18} style={{ marginLeft: 'auto', color: 'var(--violet2)' }} />}
+                    {goal === g.id && <CheckCircle size={18} color="var(--violet)" style={{ marginLeft: 'auto' }} />}
                   </div>
                 ))}
               </div>
@@ -120,112 +182,143 @@ export default function Onboarding({ onDone }) {
             </motion.div>
           )}
 
-          {/* Step 3 — AI Integration (Unified) */}
+          {/* Step 3 — Semester Setup (Optional) */}
           {step === 3 && (
-            <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 6 }}>🤖 Power up with AI</h2>
-              <p className="text-muted" style={{ marginBottom: 14, fontSize: '0.875rem' }}>
-                StudentOS acts as your personal intelligence layer. Adding an API key securely enables automated study planning, resume scoring, and the AI tutor.
+            <motion.div key="step3" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: 8 }}>
+                Step 3 of {TOTAL_STEPS}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>Set up your semester</h2>
+                <span style={{
+                  fontSize: '0.65rem', padding: '3px 8px', borderRadius: 20, fontWeight: 700,
+                  background: 'rgba(245,158,11,0.15)', color: 'var(--amber)',
+                }}>OPTIONAL</span>
+              </div>
+              <p className="text-muted" style={{ marginBottom: 16, fontSize: '0.875rem', lineHeight: 1.6 }}>
+                Paste your syllabus or timetable text and AI will automatically create your tasks, subjects, and attendance tracker. You can also do this later from the <strong>Semester Engine</strong> in Academics.
               </p>
 
-              {/* AI features grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px', marginBottom: 20, padding: '14px 16px', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)' }}>
-                {AI_FEATURES.map(f => (
-                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.76rem', color: hasValidKey ? 'var(--mint2)' : 'var(--text3)' }}>
-                    <span style={{ fontSize: '0.7rem' }}>{hasValidKey ? '✅' : '⬜'}</span> {f}
-                  </div>
-                ))}
-              </div>
+              <textarea
+                value={syllabusText}
+                onChange={e => setSyllabusText(e.target.value)}
+                placeholder="Paste syllabus, subject list, exam dates, or assignment schedule here..."
+                style={{
+                  width: '100%', minHeight: 130, resize: 'vertical', fontFamily: 'inherit',
+                  fontSize: '0.85rem', background: 'var(--surface2)', border: '1px solid var(--border)',
+                  borderRadius: 10, padding: '12px 14px', color: 'var(--text)', outline: 'none',
+                  boxSizing: 'border-box', lineHeight: 1.6,
+                }}
+              />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <label className="label" style={{ margin: 0 }}>Premium: OpenAI API Key</label>
-                    <a
-                      href="https://platform.openai.com/api-keys"
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ fontSize: '0.75rem', color: 'var(--violet2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}
-                    >
-                      <ExternalLink size={12} /> platform.openai.com
-                    </a>
+              {syllabusResult && !syllabusResult.error && (
+                <div style={{ marginTop: 12, padding: '10px 14px', background: 'rgba(16,185,129,0.08)', borderRadius: 10, border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--mint)', marginBottom: 6 }}>
+                    ✓ AI found: {syllabusResult.subjects?.length || 0} subjects, {syllabusResult.deadlines?.length || 0} deadlines
                   </div>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      className="input"
-                      type="password"
-                      placeholder="sk-..."
-                      value={form.openaiApiKey}
-                      onChange={e => set('openaiApiKey', e.target.value)}
-                      style={{ fontFamily: 'monospace', paddingRight: isOpenAIValid ? 44 : undefined }}
-                    />
-                    {isOpenAIValid && (
-                      <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--mint2)', fontSize: '1.1rem' }}>✓</span>
-                    )}
-                  </div>
-                  <p className="text-faint" style={{ fontSize: '0.72rem', marginTop: 8 }}>
-                    Uses GPT-4o. Best for deep coding and reasoning.
-                  </p>
+                  <div className="text-muted" style={{ fontSize: '0.75rem' }}>These will be added to your workspace when you complete setup.</div>
                 </div>
+              )}
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <label className="label" style={{ margin: 0 }}>Free Alternative: Groq API Key</label>
-                    <a
-                      href="https://console.groq.com/keys"
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ fontSize: '0.75rem', color: 'var(--mint2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 600 }}
-                    >
-                      <ExternalLink size={12} /> console.groq.com
-                    </a>
-                  </div>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      className="input"
-                      type="password"
-                      placeholder="gsk_..."
-                      value={form.groqApiKey}
-                      onChange={e => set('groqApiKey', e.target.value)}
-                      style={{ fontFamily: 'monospace', paddingRight: isGroqValid ? 44 : undefined }}
-                    />
-                    {isGroqValid && (
-                      <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--mint2)', fontSize: '1.1rem' }}>✓</span>
-                    )}
-                  </div>
-                  <p className="text-faint" style={{ fontSize: '0.72rem', marginTop: 8 }}>
-                    Uses LLaMA 3. Free tier: 14,400 req/day. Blazing fast.
-                  </p>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button className="btn btn-secondary" onClick={() => setStep(2)}>Back</button>
+                {syllabusText.trim() && !syllabusResult && (
+                  <button className="btn btn-secondary" onClick={handleSyllabusAnalyze} disabled={syllabusLoading || !hasValidKey}>
+                    {syllabusLoading ? '...' : <><Sparkles size={14} /> Analyze</>}
+                  </button>
+                )}
                 <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={() => setStep(4)}>
-                  {hasValidKey ? '🚀 AI Connected — Continue' : 'Skip for now'} <ArrowRight size={16} />
+                  {syllabusText.trim() ? 'Continue' : 'Skip for now'} <ArrowRight size={16} />
                 </button>
               </div>
+              {!hasValidKey && syllabusText.trim() && (
+                <div className="text-muted" style={{ fontSize: '0.72rem', marginTop: 8 }}>Add an API key in the next step to analyze your syllabus with AI.</div>
+              )}
             </motion.div>
           )}
 
-          {/* Step 4 — Launch */}
+          {/* Step 4 — API Key (Optional) */}
           {step === 4 && (
-            <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-              style={{ textAlign: 'center' }}>
-              <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                style={{ width: 64, height: 64, background: 'linear-gradient(135deg, var(--violet), var(--mint))', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <Sparkles size={28} color="#fff" />
-              </motion.div>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: 8 }}>You're all set, {form.name || 'Student'}!</h2>
-              <p className="text-muted" style={{ marginBottom: 28, fontSize: '0.875rem' }}>
-                {hasValidKey ? '✅ AI features are active and your keys are saved securely.' : '⚠️ AI features are off — add your keys in Settings anytime.'} How do you want to start?
+            <motion.div key="step4" variants={slideVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.25 }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: 8 }}>
+                Step 4 of {TOTAL_STEPS}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>Connect AI</h2>
+                <span style={{
+                  fontSize: '0.65rem', padding: '3px 8px', borderRadius: 20, fontWeight: 700,
+                  background: 'rgba(245,158,11,0.15)', color: 'var(--amber)',
+                }}>OPTIONAL</span>
+              </div>
+              <p className="text-muted" style={{ marginBottom: 20, fontSize: '0.875rem', lineHeight: 1.6 }}>
+                StudentOS works fully without an API key. Connect one to unlock personalized AI briefings, smart study plans, and the Semester Engine. You can always add this later in Settings.
               </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button className="btn btn-primary btn-lg" style={{ width: '100%' }} onClick={handleDone}>
-                  ✨ Launch StudentOS
+
+              {/* Provider tabs */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                {[
+                  { id: 'groq', label: '⚡ Groq', sub: 'Free · Recommended', link: 'https://console.groq.com' },
+                  { id: 'openai', label: '🧠 OpenAI', sub: 'GPT-4o', link: 'https://platform.openai.com/api-keys' },
+                  { id: 'gemini', label: '✨ Gemini', sub: 'Google AI', link: 'https://aistudio.google.com/app/apikey' },
+                ].map(p => (
+                  <button key={p.id} onClick={() => setProviderSelected(p.id)} style={{
+                    flex: 1, padding: '8px 10px', borderRadius: 10, fontSize: '0.78rem', cursor: 'pointer',
+                    fontWeight: 700, border: `1.5px solid ${providerSelected === p.id ? 'var(--violet2)' : 'var(--border)'}`,
+                    background: providerSelected === p.id ? 'rgba(124,58,237,0.1)' : 'var(--surface2)',
+                    color: 'var(--text)', transition: 'all 0.2s',
+                  }}>
+                    <div>{p.label}</div>
+                    <div style={{ fontWeight: 400, color: 'var(--text3)', fontSize: '0.68rem' }}>{p.sub}</div>
+                  </button>
+                ))}
+              </div>
+
+              {providerSelected === 'groq' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <label className="label" style={{ margin: 0 }}>Groq API Key (gsk-...)</label>
+                    <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      Get free key <ExternalLink size={11} />
+                    </a>
+                  </div>
+                  <input className="input" type="password" placeholder="gsk-..." value={form.groqApiKey} onChange={e => set('groqApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
+                  {isGroqValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Groq key detected</div>}
+                </div>
+              )}
+              {providerSelected === 'openai' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <label className="label" style={{ margin: 0 }}>OpenAI API Key (sk-...)</label>
+                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--violet2)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      Get key <ExternalLink size={11} />
+                    </a>
+                  </div>
+                  <input className="input" type="password" placeholder="sk-..." value={form.openaiApiKey} onChange={e => set('openaiApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
+                  {isOpenAIValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid OpenAI key detected</div>}
+                </div>
+              )}
+              {providerSelected === 'gemini' && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <label className="label" style={{ margin: 0 }}>Gemini API Key (AIza...)</label>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--amber)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      Get free key <ExternalLink size={11} />
+                    </a>
+                  </div>
+                  <input className="input" type="password" placeholder="AIza..." value={form.geminiApiKey} onChange={e => set('geminiApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
+                  {isGeminiValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Gemini key detected</div>}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
+                <button className="btn btn-secondary" onClick={() => setStep(3)}>Back</button>
+                <button className="btn btn-primary btn-lg" style={{ flex: 1 }} onClick={handleDone}>
+                  <Sparkles size={16} /> {hasValidKey ? 'Launch StudentOS with AI' : 'Launch StudentOS'}
                 </button>
-                <button className="btn btn-secondary" style={{ width: '100%', fontSize: '0.8rem' }} onClick={() => setStep(3)}>
-                  ← Go back to add API key
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 12 }}>
+                <button className="btn btn-ghost btn-sm" onClick={handleDone} style={{ color: 'var(--text3)', fontSize: '0.75rem' }}>
+                  Skip AI setup — I'll add a key later
                 </button>
               </div>
             </motion.div>

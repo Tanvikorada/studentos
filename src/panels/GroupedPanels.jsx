@@ -9,11 +9,12 @@ import GPA from './GPA';
 import Attendance from './Attendance';
 import CareerPredictor from './CareerPredictor';
 import Internships from './Internships';
-import { MarketTrends, ResumeBuilder, Portfolio, MockInterview, Settings } from './misc';
+import { ResumeBuilder, Portfolio, MockInterview, Settings } from './misc';
 import Projects from './Projects';
 import GitHubTracker from './GitHubTracker';
 import Profile from './Profile';
 import CertsSkills from './CertsSkills';
+import SemesterEngine from './SemesterEngine';
 
 // Helper component for tabs
 function TabbedView({ tabs, initialTab = 0 }) {
@@ -26,11 +27,11 @@ function TabbedView({ tabs, initialTab = 0 }) {
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', gap: 8, padding: '0 0 16px 0', borderBottom: '1px solid var(--border)', marginBottom: 16 }}>
+      <div className="tab-bar">
         {tabs.map((tab, idx) => (
           <button
             key={tab.label}
-            className={`btn ${activeIdx === idx ? 'btn-primary' : 'btn-ghost'}`}
+            className={`tab-btn ${activeIdx === idx ? 'active' : ''}`}
             onClick={() => setActiveIdx(idx)}
           >
             {tab.label}
@@ -46,30 +47,34 @@ function TabbedView({ tabs, initialTab = 0 }) {
 
 export function PlannerHub() {
   return <TabbedView tabs={[
-    { label: 'Tasks & To-Do', component: Tasks },
-    { label: 'Timetable', component: Timetable }
+    { label: 'Tasks', component: Tasks },
+    { label: 'Timetable', component: Timetable },
   ]} />;
 }
 
 export function StudySpace() {
   return <TabbedView tabs={[
     { label: 'Notes', component: Notes },
-    { label: 'Focus Timer', component: FocusTimer }
+    { label: 'Focus Timer', component: FocusTimer },
   ]} />;
 }
 
 export function AcademicsHub() {
   return <TabbedView tabs={[
-    { label: 'GPA Calculator', component: GPA },
-    { label: 'Attendance', component: Attendance }
+    { label: 'GPA & Grades', component: GPA },
+    { label: 'Attendance', component: Attendance },
+    { label: 'Notes', component: Notes },
+    { label: 'Timetable', component: Timetable },
+    { label: '✦ Semester Engine', component: SemesterEngine },
   ]} />;
 }
 
 export function CareerInternshipsHub() {
   return <TabbedView tabs={[
-    { label: 'Career Predictor', component: CareerPredictor },
-    { label: 'Internships', component: Internships },
-    { label: 'Market Trends', component: MarketTrends }
+    { label: 'Career Intelligence', component: CareerPredictor },
+    { label: 'Resume & ATS', component: ResumeBuilder },
+    { label: 'Mock Interview', component: MockInterview },
+    { label: 'Job Tracker', component: Internships },
   ]} />;
 }
 
@@ -77,22 +82,22 @@ export function ProjectsHub() {
   return <TabbedView tabs={[
     { label: 'Projects', component: Projects },
     { label: 'Portfolio', component: Portfolio },
-    { label: 'GitHub Tracker', component: GitHubTracker }
+    { label: 'GitHub', component: GitHubTracker },
   ]} />;
 }
 
 export function InterviewPrep() {
   return <TabbedView tabs={[
-    { label: 'Resume Builder', component: ResumeBuilder },
-    { label: 'Mock Interview', component: MockInterview }
+    { label: 'Resume & ATS', component: ResumeBuilder },
+    { label: 'Mock Interview', component: MockInterview },
   ]} />;
 }
 
 export function ProfileSettings({ activePanel }) {
   const initialIdx = activePanel === 'settings' ? 2 : 0;
   return <TabbedView tabs={[
-    { label: 'Profile', component: Profile },
+    { label: 'Academic Identity', component: Profile },
     { label: 'Certs & Skills', component: CertsSkills },
-    { label: 'Settings', component: Settings }
+    { label: 'Settings', component: Settings },
   ]} initialTab={initialIdx} />;
 }

@@ -69,7 +69,8 @@ const defaultDB = {
     theme: 'chatgpt-style',
     notificationsEnabled: false,
     onboardingComplete: false,
-    aiProvider: 'openai',
+    aiProvider: 'groq',
+    geminiApiKey: '',
   },
   productivity: [], // activity heatmap data
   studyPlan: {
@@ -314,6 +315,17 @@ export function setOpenAIApiKey(apiKey) {
   }, 'Updated OpenAI API Key');
 }
 
+export function getGeminiApiKey() {
+  return getDB().settings?.geminiApiKey || '';
+}
+
+export function setGeminiApiKey(apiKey) {
+  mutateDB(d => {
+    if (!d.settings) d.settings = {};
+    d.settings.geminiApiKey = String(apiKey || '').trim();
+  }, 'Updated Gemini API Key');
+}
+
 export function subscribeDB(fn) {
   stateListeners.push(fn);
   return () => stateListeners.splice(stateListeners.indexOf(fn), 1);
@@ -539,11 +551,28 @@ export async function callOpenAI(messages, systemPrompt = '') {
 }
 
 
+export async function callGemini(messages, systemPrompt = '') {
+  const apiKey = getGeminiApiKey();
+  if (!apiKey) return "No Gemini API key set. Add it in Settings to use Gemini features.";
+  try {
+    const contents = [
+      ...(systemPrompt ? [{ role: 'user', parts: [{ text: systemPrompt }] }, { role: 'model', parts: [{ text: 'Understood.' }] }] : []),
+      ...messages.map(m => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] })),
+    ];
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents }) }
+    );
+    if (!response.ok) throw new Error((await response.json()).error?.message || 'Gemini API error');
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+  } catch (err) { return `Gemini Error: ${err.message}`; }
+}
+
 export async function callAI(messages, systemPrompt = '') {
-  const provider = getDB().settings?.aiProvider || 'openai';
-  if (provider === 'openai') {
-    return callOpenAI(messages, systemPrompt);
-  }
+  const provider = getDB().settings?.aiProvider || 'groq';
+  if (provider === 'openai') return callOpenAI(messages, systemPrompt);
+  if (provider === 'gemini') return callGemini(messages, systemPrompt);
   return callGroq(messages, systemPrompt);
 }
 

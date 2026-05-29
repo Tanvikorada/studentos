@@ -3214,3 +3214,111 @@ select.input option {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .resume-builder-layout { grid-template-columns: 1fr; }
 }
+
+/* =========================================
+   NEW: Tab Bar (GroupedPanels / AcademicsHub)
+   ========================================= */
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 20px;
+  background: var(--surface2);
+  border-radius: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+
+.tab-bar::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.tab-btn:hover {
+  color: var(--text);
+  background: var(--surface3);
+}
+
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+/* =========================================
+   NEW: Dashboard health + badge utilities
+   ========================================= */
+
+.badge-amber {
+  background: rgba(245,158,11,0.12);
+  color: var(--amber);
+}
+
+.badge-red {
+  background: rgba(239,68,68,0.12);
+  color: var(--red);
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, var(--violet), var(--mint));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* AI card accent */
+.card-ai {
+  border-left: 3px solid var(--violet) !important;
+  background: linear-gradient(135deg, rgba(124,58,237,0.04) 0%, var(--surface) 100%) !important;
+}
+
+/* Semester Engine-specific overrides */
+.semester-engine-drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: 14px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.semester-engine-drop-zone:hover {
+  border-color: var(--violet2);
+  background: rgba(124,58,237,0.04);
+}
+
+/* =========================================
+   MOBILE: Tab bar responsive
+   ========================================= */
+
+@media (max-width: 768px) {
+  .tab-bar {
+    gap: 2px;
+    padding: 3px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+
+  .tab-btn {
+    padding: 7px 11px;
+    font-size: 0.78rem;
+  }
+}
+

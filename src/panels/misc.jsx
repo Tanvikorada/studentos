@@ -1,7 +1,7 @@
 import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey } from '../store';
+import { mutateDB, exportDB, resetDB, toast, useDB, callGroq, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey, setGeminiApiKey, getGeminiApiKey } from '../store';
 import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck, LogOut } from 'lucide-react';
 
 export function ResumeBuilder() {
@@ -735,21 +735,21 @@ export function Settings() {
   const db = useDB();
   const [groqKey, setGroqKey] = useState(db.settings?.groqApiKey || '');
   const [openAIKey, setOpenAIKeyLocal] = useState(getOpenAIApiKey());
-  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'openai');
-  const [agentName, setAgentName] = useState(db.settings?.agentName || 'Jarvis');
+  const [geminiKey, setGeminiKey] = useState(db.settings?.geminiApiKey || '');
+  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'groq');
 
   useEffect(() => {
     setGroqKey(db.settings?.groqApiKey || '');
-    setAiProvider(db.settings?.aiProvider || 'openai');
-    setAgentName(db.settings?.agentName || 'Jarvis');
+    setGeminiKey(db.settings?.geminiApiKey || '');
+    setAiProvider(db.settings?.aiProvider || 'groq');
   }, [db.settings]);
 
   const saveKeys = () => {
     mutateDB(d => { 
       if (!d.settings) d.settings = {}; 
       d.settings.groqApiKey = groqKey; 
+      d.settings.geminiApiKey = geminiKey;
       d.settings.aiProvider = aiProvider;
-      d.settings.agentName = agentName;
     }, 'Updated AI Integration settings');
     setOpenAIApiKey(openAIKey);
     toast.success('AI settings saved');
@@ -767,35 +767,44 @@ export function Settings() {
 
       <div className="card mb-4" style={{ background: 'rgba(255,255,255,0.01)' }}>
         <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--violet2)' }}>
-          🤖 Unified AI Integration
+          🤖 AI Integration
         </div>
         <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 16, lineHeight: 1.5 }}>
-          Set up your API keys to power StudentOS intelligence. Select your preferred provider for Chat and Code Analysis.
+          Connect an AI provider to enable personalized intelligence across StudentOS. Groq is free and fast — recommended to start.
         </p>
 
-        <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer', padding: '6px 12px', background: aiProvider === 'openai' ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${aiProvider === 'openai' ? 'var(--violet2)' : 'transparent'}`, borderRadius: 8 }}>
-            <input type="radio" name="ai-provider" checked={aiProvider === 'openai'} onChange={() => setAiProvider('openai')} />
-            🧠 GPT-4o (OpenAI)
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.8rem', cursor: 'pointer', padding: '6px 12px', background: aiProvider === 'groq' ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.05)', border: `1px solid ${aiProvider === 'groq' ? 'var(--mint)' : 'transparent'}`, borderRadius: 8 }}>
-            <input type="radio" name="ai-provider" checked={aiProvider === 'groq'} onChange={() => setAiProvider('groq')} />
-            ⚡ LLaMA 3 (Groq)
-          </label>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+          {[
+            { id: 'groq', label: '⚡ Groq (Free)', desc: 'LLaMA 3 — fast & free', color: 'var(--mint)' },
+            { id: 'openai', label: '🧠 OpenAI GPT-4o', desc: 'Most capable', color: 'var(--violet2)' },
+            { id: 'gemini', label: '✨ Gemini 1.5', desc: 'Google AI', color: 'var(--amber)' },
+          ].map(p => (
+            <label key={p.id} style={{
+              display: 'flex', flexDirection: 'column', gap: 2, fontSize: '0.8rem', cursor: 'pointer',
+              padding: '10px 14px', flex: 1, minWidth: 120,
+              background: aiProvider === p.id ? `rgba(124,58,237,0.1)` : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${aiProvider === p.id ? 'var(--violet2)' : 'transparent'}`,
+              borderRadius: 10, transition: 'all 0.2s',
+            }}>
+              <input type="radio" name="ai-provider" checked={aiProvider === p.id} onChange={() => setAiProvider(p.id)} style={{ display: 'none' }} />
+              <span style={{ fontWeight: 700 }}>{p.label}</span>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text3)' }}>{p.desc}</span>
+            </label>
+          ))}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div>
+            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Groq API Key (gsk-...) — <a href="https://console.groq.com" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>Get free key</a></label>
+            <input className="input" type="password" placeholder="gsk-..." value={groqKey} onChange={e => setGroqKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
+          </div>
           <div>
             <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>OpenAI API Key (sk-...)</label>
             <input className="input" type="password" placeholder="sk-..." value={openAIKey} onChange={e => setOpenAIKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
           </div>
           <div>
-            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Groq API Key (gsk-...)</label>
-            <input className="input" type="password" placeholder="gsk-..." value={groqKey} onChange={e => setGroqKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
-          </div>
-          <div>
-            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Agent Name (e.g. Jarvis, Friday)</label>
-            <input className="input" placeholder="Jarvis" value={agentName} onChange={e => setAgentName(e.target.value)} />
+            <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Gemini API Key — <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{ color: 'var(--amber)' }}>Get key</a></label>
+            <input className="input" type="password" placeholder="AIza..." value={geminiKey} onChange={e => setGeminiKey(e.target.value)} style={{ fontFamily: 'monospace' }} />
           </div>
           <button className="btn btn-primary" onClick={saveKeys} style={{ alignSelf: 'flex-start', marginTop: 4 }}><Save size={14} /> Save AI Settings</button>
         </div>
