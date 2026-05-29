@@ -40,11 +40,9 @@ export default function Splash({ onDone }) {
       {/* Background Image that zooms in */}
       <motion.div 
         animate={zooming ? { 
-          scale: 30, // massive zoom
+          scale: 80, // massive zoom into the laptop screen
           opacity: 0,
-          filter: 'blur(10px)',
-          // Adjust transform origin if the desk/computer is not exactly center.
-          // Center is usually fine for a dramatic zoom.
+          filter: 'blur(5px)',
         } : { 
           scale: 1.05, 
           opacity: 0.6,
@@ -60,7 +58,7 @@ export default function Splash({ onDone }) {
           backgroundImage: 'url(/assets/hero-bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          transformOrigin: '50% 60%', // Aim slightly below center where a desk usually is
+          transformOrigin: '50% 50%', // Exactly center where the laptop screen is
           zIndex: 0
         }} 
       />
