@@ -1995,7 +1995,7 @@ select.input option {
 }
 
 .cgpt-sidebar.collapsed {
-  width: 0;
+  width: 60px;
 }
 
 .cgpt-sidebar-header {
@@ -2167,7 +2167,7 @@ select.input option {
 }
 
 .claude-sidebar.collapsed {
-  width: 0;
+  width: 60px;
   border-right: none;
 }
 
