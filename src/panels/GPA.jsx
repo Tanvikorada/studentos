@@ -226,7 +226,7 @@ export default function GPA() {
       {/* Summary Cards */}
       <div className="grid-2 mb-6">
         {/* CGPA Ring */}
-        <div className="card" style={{ padding: '28px 32px' }}>
+        <div className="glass-card" style={{ padding: '28px 32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 28, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
               <CircleRing value={cgpa} color={cgpaColor} />
@@ -253,7 +253,7 @@ export default function GPA() {
         </div>
 
         {/* Grade Point Matrix */}
-        <div className="card">
+        <div className="glass-card" style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ fontWeight: 700, marginBottom: 14, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: 8 }}>
             <Award size={16} style={{ color: 'var(--violet2)' }} /> Grade Point Matrix
           </div>
@@ -281,7 +281,7 @@ export default function GPA() {
       </div>
 
       <div className="grid-2 mb-6">
-        <div className="card">
+        <div className="glass-card" style={{ padding: '28px 32px' }}>
           <div className="section-title"><Target size={16} /> Target CGPA Planner</div>
           <div className="grid-2" style={{ alignItems: 'end' }}>
             <div>
@@ -302,7 +302,7 @@ export default function GPA() {
           <p className="text-muted" style={{ fontSize: '0.8rem', marginTop: 12 }}>Assumes a 160-credit degree. Adjust completed semesters and credits for a sharper estimate.</p>
         </div>
 
-        <div className="card">
+        <div className="glass-card" style={{ padding: '28px 32px' }}>
           <div className="section-title"><Sparkles size={16} /> AI Academic Advisor</div>
           <button className="btn btn-secondary btn-sm" onClick={askAdvisor} disabled={advisorLoading}>
             <Sparkles size={14} /> {advisorLoading ? 'Analyzing...' : 'How can I improve?'}
@@ -313,7 +313,7 @@ export default function GPA() {
       </div>
 
       {Object.keys(gradeDistribution).length > 0 && (
-        <div className="card mb-6">
+        <div className="glass-card mb-6" style={{ padding: '28px 32px' }}>
           <div className="section-title"><BarChartMini /> Subject-wise Grade Distribution</div>
           <div style={{ display: 'grid', gap: 10 }}>
             {Object.keys(GRADE_POINTS).map(g => {
@@ -354,8 +354,8 @@ export default function GPA() {
           const sgpaNum = parseFloat(sgpa) || 0;
           const semCredits = (sem.subjects || []).reduce((a, s) => a + (s.credits || 0), 0);
           return (
-            <motion.div key={sem.id} layout className={`card ${isExpanded ? 'card-glow' : ''}`}
-              style={{ overflow: 'visible', transition: 'box-shadow 0.3s' }}>
+            <motion.div key={sem.id} layout className={`glass-card ${isExpanded ? 'card-glow' : ''}`}
+              style={{ padding: '24px 28px', overflow: 'visible', transition: 'box-shadow 0.3s' }}>
               {/* Semester Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
                 onClick={() => setExpandedSem(isExpanded ? null : sem.id)}>

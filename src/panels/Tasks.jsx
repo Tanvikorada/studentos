@@ -149,13 +149,13 @@ export default function Tasks() {
       <div className="kanban-board">
         {COLS.map(col => (
           <div key={col.id} 
-            className={`kanban-col ${dragOverCol === col.id ? 'drag-over' : ''}`}
+            className={`glass-card kanban-col ${dragOverCol === col.id ? 'drag-over' : ''}`}
             style={{ 
-              ...(dragOverCol === col.id ? {
-                borderColor: col.color,
-                background: col.glow,
-                boxShadow: `0 0 25px ${col.glow}`
-              } : {})
+              padding: '16px',
+              display: 'flex', flexDirection: 'column',
+              background: dragOverCol === col.id ? col.glow : 'rgba(30, 30, 42, 0.4)',
+              borderColor: dragOverCol === col.id ? col.color : 'var(--border)',
+              transition: 'all 0.3s ease',
             }}
             onDragOver={e => { e.preventDefault(); setDragOverCol(col.id); }}
             onDragLeave={() => setDragOverCol(null)}
@@ -176,9 +176,23 @@ export default function Tasks() {
               <AnimatePresence>
                 {colTasks(col.id).map(t => (
                   <motion.div key={t.id} layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                    className="kanban-card" draggable
+                    className="kanban-card glass-card" draggable
                     onDragStart={() => setDrag(t.id)}
-                    style={{ opacity: drag === t.id ? 0.5 : 1 }}
+                    style={{ 
+                      opacity: drag === t.id ? 0.5 : 1, 
+                      padding: '14px', 
+                      background: 'rgba(42, 42, 56, 0.6)', 
+                      cursor: 'grab',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = `0 8px 24px ${col.glow}`;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow)';
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'flex-start' }}>
                       <span style={{ fontWeight: 600, fontSize: '0.9rem', lineHeight: 1.3 }}>{t.title}</span>

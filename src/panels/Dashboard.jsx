@@ -61,13 +61,26 @@ function HealthBar({ label, value, max = 100, color, onClick, subtext }) {
   return (
     <div
       onClick={onClick}
+      className="glass-card"
       style={{
-        padding: '14px 16px', borderRadius: 10, background: 'var(--surface2)',
-        cursor: onClick ? 'pointer' : 'default', transition: 'all 0.2s',
-        border: '1px solid transparent',
+        padding: '16px 20px', 
+        cursor: onClick ? 'pointer' : 'default', transition: 'all 0.3s ease',
+        border: '1px solid var(--border)',
       }}
-      onMouseEnter={e => onClick && (e.currentTarget.style.borderColor = 'var(--border2)')}
-      onMouseLeave={e => (e.currentTarget.style.borderColor = 'transparent')}
+      onMouseEnter={e => {
+        if(onClick) {
+          e.currentTarget.style.borderColor = 'var(--border2)';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.4)';
+        }
+      }}
+      onMouseLeave={e => {
+        if(onClick) {
+          e.currentTarget.style.borderColor = 'var(--border)';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = 'var(--shadow)';
+        }
+      }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text2)' }}>{label}</span>
@@ -99,12 +112,12 @@ function PlacementGauge({ score }) {
   const color = score >= 70 ? 'var(--mint)' : score >= 45 ? 'var(--amber)' : 'var(--red)';
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-      <div style={{ position: 'relative', width: 90, height: 90, flexShrink: 0 }}>
-        <svg width="90" height="90" viewBox="0 0 90 90" style={{ transform: 'rotate(135deg)' }}>
-          <circle cx="45" cy="45" r={radius} stroke="var(--surface3)" strokeWidth="8" fill="none" strokeDasharray={`${strokeDash} ${circ}`} />
+    <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '24px' }}>
+      <div style={{ position: 'relative', width: 100, height: 100, flexShrink: 0 }}>
+        <svg width="100" height="100" viewBox="0 0 100 100" style={{ transform: 'rotate(135deg)', filter: `drop-shadow(0 0 8px ${color}40)` }}>
+          <circle cx="50" cy="50" r={radius} stroke="var(--surface3)" strokeWidth="8" fill="none" strokeDasharray={`${strokeDash} ${circ}`} />
           <motion.circle
-            cx="45" cy="45" r={radius}
+            cx="50" cy="50" r={radius}
             stroke={color} strokeWidth="8" fill="none" strokeLinecap="round"
             strokeDasharray={`${strokeDash} ${circ}`}
             initial={{ strokeDashoffset: strokeDash }}
@@ -116,13 +129,13 @@ function PlacementGauge({ score }) {
           position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontSize: '1.25rem', fontWeight: 800, color, lineHeight: 1 }}>{score}</span>
-          <span style={{ fontSize: '0.55rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase' }}>/ 100</span>
+          <span style={{ fontSize: '1.4rem', fontWeight: 800, color, lineHeight: 1 }}>{score}</span>
+          <span style={{ fontSize: '0.6rem', color: 'var(--text3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>/ 100</span>
         </div>
       </div>
       <div>
-        <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 4 }}>Placement Readiness</div>
-        <div className="text-muted" style={{ fontSize: '0.78rem', lineHeight: 1.5 }}>
+        <div style={{ fontWeight: 800, fontSize: '1.1rem', marginBottom: 6, color: 'var(--text)' }}>Placement Readiness</div>
+        <div className="text-muted" style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>
           {score < 40 && 'Add projects, skills, and resume details to improve your score.'}
           {score >= 40 && score < 70 && 'Good progress! Complete your resume and add certifications.'}
           {score >= 70 && 'Strong profile. Keep up with mock interviews and coding practice.'}
