@@ -378,11 +378,46 @@ export function seedDemoData() {
     // ── GPA ───────────────────────────────────────────────────────
     d.gpa = {
       semesters: [
-        { id: 'g1', name: 'Sem 1', gpa: 7.8, credits: 20 },
-        { id: 'g2', name: 'Sem 2', gpa: 8.1, credits: 22 },
-        { id: 'g3', name: 'Sem 3', gpa: 8.4, credits: 24 },
-        { id: 'g4', name: 'Sem 4', gpa: 8.6, credits: 24 },
-        { id: 'g5', name: 'Sem 5', gpa: 8.9, credits: 26 },
+        {
+          id: 'g1', name: 'Sem 1',
+          subjects: [
+            { id: 's1-1', name: 'Math I', credits: 4, grade: 'B+' },
+            { id: 's1-2', name: 'Physics', credits: 4, grade: 'A' },
+            { id: 's1-3', name: 'Programming in C', credits: 4, grade: 'B' },
+            { id: 's1-4', name: 'Engineering Graphics', credits: 3, grade: 'A' },
+            { id: 's1-5', name: 'Communication Skills', credits: 2, grade: 'A+' },
+          ]
+        },
+        {
+          id: 'g2', name: 'Sem 2',
+          subjects: [
+            { id: 's2-1', name: 'Math II', credits: 4, grade: 'A' },
+            { id: 's2-2', name: 'Chemistry', credits: 4, grade: 'A' },
+            { id: 's2-3', name: 'Data Structures', credits: 4, grade: 'A+' },
+            { id: 's2-4', name: 'Basic Electrical', credits: 3, grade: 'B+' },
+            { id: 's2-5', name: 'Environmental Science', credits: 2, grade: 'O' },
+          ]
+        },
+        {
+          id: 'g3', name: 'Sem 3',
+          subjects: [
+            { id: 's3-1', name: 'Math III', credits: 4, grade: 'A+' },
+            { id: 's3-2', name: 'Object Oriented Prog', credits: 4, grade: 'O' },
+            { id: 's3-3', name: 'Digital Logic', credits: 3, grade: 'A' },
+            { id: 's3-4', name: 'Computer Architecture', credits: 3, grade: 'B+' },
+            { id: 's3-5', name: 'Discrete Math', credits: 3, grade: 'A' },
+          ]
+        },
+        {
+          id: 'g4', name: 'Sem 4',
+          subjects: [
+            { id: 's4-1', name: 'Algorithms', credits: 4, grade: 'O' },
+            { id: 's4-2', name: 'Operating Systems', credits: 4, grade: 'A+' },
+            { id: 's4-3', name: 'Database Systems', credits: 4, grade: 'A' },
+            { id: 's4-4', name: 'Theory of Computation', credits: 3, grade: 'A' },
+            { id: 's4-5', name: 'Microprocessors', credits: 3, grade: 'B+' },
+          ]
+        }
       ],
       targets: { desiredCGPA: '9.0' },
     };

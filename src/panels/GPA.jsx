@@ -49,7 +49,7 @@ function GPACurve({ semesters }) {
   const w = 420, h = 130, padX = 30, padY = 24;
   const sgpas = semesters.map(sem => {
     let pts = 0, creds = 0;
-    sem.subjects.forEach(s => { pts += (GRADE_POINTS[s.grade] || 0) * s.credits; creds += s.credits; });
+    (sem.subjects || []).forEach(s => { pts += (GRADE_POINTS[s.grade] || 0) * s.credits; creds += s.credits; });
     return creds > 0 ? parseFloat((pts / creds).toFixed(2)) : 0;
   });
   const maxGPA = 10, minGPA = Math.max(0, Math.min(...sgpas) - 1);
@@ -180,13 +180,13 @@ export default function GPA() {
   };
 
   const semSGPA = (sem) => {
-    if (!sem.subjects.length) return '—';
+    if (!(sem.subjects || []).length) return '—';
     let pts = 0, creds = 0;
-    sem.subjects.forEach(s => { pts += (GRADE_POINTS[s.grade] || 0) * s.credits; creds += s.credits; });
+    (sem.subjects || []).forEach(s => { pts += (GRADE_POINTS[s.grade] || 0) * s.credits; creds += s.credits; });
     return creds > 0 ? (pts / creds).toFixed(2) : '—';
   };
 
-  const totalCredits = semesters.reduce((a, s) => a + s.subjects.reduce((b, x) => b + (x.credits || 0), 0), 0);
+  const totalCredits = semesters.reduce((a, s) => a + (s.subjects || []).reduce((b, x) => b + (x.credits || 0), 0), 0);
   const remainingCreditsGuess = Math.max(0, 160 - totalCredits);
   const requiredFutureGPA = remainingCreditsGuess > 0
     ? (((parseFloat(targetCGPA) || 0) * (totalCredits + remainingCreditsGuess) - (cgpaNum * totalCredits)) / remainingCreditsGuess)
@@ -352,7 +352,7 @@ export default function GPA() {
           const isExpanded = expandedSem === sem.id;
           const sgpa = semSGPA(sem);
           const sgpaNum = parseFloat(sgpa) || 0;
-          const semCredits = sem.subjects.reduce((a, s) => a + (s.credits || 0), 0);
+          const semCredits = (sem.subjects || []).reduce((a, s) => a + (s.credits || 0), 0);
           return (
             <motion.div key={sem.id} layout className={`card ${isExpanded ? 'card-glow' : ''}`}
               style={{ overflow: 'visible', transition: 'box-shadow 0.3s' }}>
@@ -396,7 +396,7 @@ export default function GPA() {
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden' }}>
                     <div style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                      {sem.subjects.length === 0 ? (
+                      {(sem.subjects || []).length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '28px', color: 'var(--text3)', fontSize: '0.85rem' }}>
                           <BookOpen size={24} style={{ margin: '0 auto 10px', opacity: 0.4 }} />
                           No subjects yet. Click "+ Subject" to add one.
@@ -414,7 +414,7 @@ export default function GPA() {
                             </tr>
                           </thead>
                           <tbody>
-                            {sem.subjects.map(sub => (
+                            {(sem.subjects || []).map(sub => (
                               <tr key={sub.id}>
                                 <td>
                                   <input className="input" value={sub.name}
@@ -456,11 +456,11 @@ export default function GPA() {
                         </table>
                       )}
 
-                      {sem.subjects.length > 0 && (
+                      {(sem.subjects || []).length > 0 && (
                         <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
                           <div style={{ display: 'flex', gap: 24 }}>
                             <div><span style={{ color: 'var(--text3)', fontSize: '0.75rem' }}>Total Credits: </span><span style={{ fontWeight: 700, color: 'var(--text2)' }}>{semCredits}</span></div>
-                            <div><span style={{ color: 'var(--text3)', fontSize: '0.75rem' }}>Subjects: </span><span style={{ fontWeight: 700, color: 'var(--text2)' }}>{sem.subjects.length}</span></div>
+                            <div><span style={{ color: 'var(--text3)', fontSize: '0.75rem' }}>Subjects: </span><span style={{ fontWeight: 700, color: 'var(--text2)' }}>{(sem.subjects || []).length}</span></div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             <span style={{ color: 'var(--text3)', fontSize: '0.8rem' }}>Semester GPA:</span>
