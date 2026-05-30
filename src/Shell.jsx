@@ -19,6 +19,7 @@ const CodeStudio = lazy(() => import('./panels/CodeStudio'));
 const PlannerHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.PlannerHub })));
 const AcademicsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.AcademicsHub })));
 const CareerInternshipsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.CareerInternshipsHub })));
+const ProjectsHub = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.ProjectsHub })));
 const ProfileSettings = lazy(() => import('./panels/GroupedPanels').then(m => ({ default: m.ProfileSettings })));
 
 // 7-section AI-native OS navigation
@@ -28,6 +29,7 @@ const NAV = [
   { id: 'career', label: 'Career', icon: Briefcase },
   { id: 'chat', label: 'AI Assistant', icon: Sparkles },
   { id: 'planner', label: 'Smart Planner', icon: Calendar },
+  { id: 'projects', label: 'Projects', icon: GitBranch },
   { id: 'code', label: 'Code Studio', icon: Code },
 ];
 
@@ -42,6 +44,7 @@ const PANELS = {
   academics: AcademicsHub,
   code: CodeStudio,
   career: CareerInternshipsHub,
+  projects: ProjectsHub,
   profile: ProfileSettings,
   settings: ProfileSettings,
 };
@@ -53,6 +56,7 @@ const PANEL_LABELS = {
   academics: 'Academics',
   code: 'Code Studio',
   career: 'Career',
+  projects: 'Projects',
   profile: 'Identity & Settings',
   settings: 'Settings',
 };

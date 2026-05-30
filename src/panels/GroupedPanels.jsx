@@ -11,6 +11,7 @@ import CareerPredictor from './CareerPredictor';
 import Internships from './Internships';
 import { Portfolio, MockInterview, Settings } from './misc';
 import { ResumeBuilder } from './ResumeBuilder';
+import Projects from './Projects';
 import GitHubTracker from './GitHubTracker';
 import Profile from './Profile';
 import CertsSkills from './CertsSkills';
@@ -84,6 +85,13 @@ export function InterviewPrep() {
   return <TabbedView tabs={[
     { label: 'Resume & ATS', component: ResumeBuilder },
     { label: 'Mock Interview', component: MockInterview },
+  ]} />;
+}
+
+export function ProjectsHub() {
+  return <TabbedView tabs={[
+    { label: 'Project Portfolio', component: Projects },
+    { label: 'GitHub Activity', component: GitHubTracker },
   ]} />;
 }
 

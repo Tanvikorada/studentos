@@ -521,6 +521,21 @@ ul, ol {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
 .btn:active {
   transform: scale(0.95);
 }
