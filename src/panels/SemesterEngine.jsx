@@ -23,7 +23,7 @@ export default function SemesterEngine() {
   const [result, setResult] = useState(null);
   const [step, setStep] = useState('input'); // input | processing | done
 
-  const hasKey = !!(window.localStorage.getItem('studentos_grok_key') || window.localStorage.getItem('studentos_openai_key'));
+  const hasKey = !!(window.localStorage.getItem('studentos_groq_key') || window.localStorage.getItem('studentos_openai_key'));
 
   const processSyllabus = async () => {
     if (!inputText.trim()) {
@@ -202,11 +202,14 @@ Return ONLY valid JSON, no markdown.`;
             onChange={e => setInputText(e.target.value)}
             placeholder={`Paste your syllabus, assignment sheet, or semester timetable here...\n\nExamples:\n• Course names and codes\n• Assignment due dates\n• Exam schedules\n• Weekly timetable\n• Project submission deadlines`}
             style={{
-              width: '100%', minHeight: 200, resize: 'vertical', fontFamily: 'inherit',
-              fontSize: '0.875rem', lineHeight: 1.7, background: 'var(--surface2)',
-              border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px',
+              width: '100%', minHeight: 220, resize: 'vertical', fontFamily: 'inherit',
+              fontSize: '0.9rem', lineHeight: 1.8, background: 'var(--surface2)',
+              border: '2px dashed var(--border)', borderRadius: 12, padding: '20px',
               color: 'var(--text)', outline: 'none', boxSizing: 'border-box',
+              transition: 'all 0.2s ease',
             }}
+            onFocus={e => e.target.style.borderColor = 'var(--violet)'}
+            onBlur={e => e.target.style.borderColor = 'var(--border)'}
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
             <span className="text-muted" style={{ fontSize: '0.75rem' }}>

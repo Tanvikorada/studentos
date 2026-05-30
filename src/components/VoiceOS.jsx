@@ -66,7 +66,7 @@ export default function VoiceOS({ onNavigate }) {
   }, [db.settings?.onboardingComplete, agentName, wakeWordMode, listening]);
 
   const toggleListening = () => {
-    if (!window.localStorage.getItem('studentos_grok_key') && !window.localStorage.getItem('studentos_openai_key')) {
+    if (!window.localStorage.getItem('studentos_groq_key') && !window.localStorage.getItem('studentos_openai_key')) {
       toast.error('AI API Key missing. Add it in Settings.');
       return;
     }

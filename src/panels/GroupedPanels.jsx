@@ -9,8 +9,8 @@ import GPA from './GPA';
 import Attendance from './Attendance';
 import CareerPredictor from './CareerPredictor';
 import Internships from './Internships';
-import { ResumeBuilder, Portfolio, MockInterview, Settings } from './misc';
-import Projects from './Projects';
+import { Portfolio, MockInterview, Settings } from './misc';
+import { ResumeBuilder } from './ResumeBuilder';
 import GitHubTracker from './GitHubTracker';
 import Profile from './Profile';
 import CertsSkills from './CertsSkills';
@@ -78,13 +78,7 @@ export function CareerInternshipsHub() {
   ]} />;
 }
 
-export function ProjectsHub() {
-  return <TabbedView tabs={[
-    { label: 'Projects', component: Projects },
-    { label: 'Portfolio', component: Portfolio },
-    { label: 'GitHub', component: GitHubTracker },
-  ]} />;
-}
+
 
 export function InterviewPrep() {
   return <TabbedView tabs={[
