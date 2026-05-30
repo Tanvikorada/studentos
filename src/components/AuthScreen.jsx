@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Eye, EyeOff, GraduationCap, Loader2 } from 'lucide-react';
-import { getDB, mutateDB, toast, unlockDB } from '../store';
+import { getDB, mutateDB, toast, unlockDB, seedDemoData } from '../store';
 import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInWithPopup, googleProvider } from '../firebase';
 import { setGroqApiKey } from '../store';
 import StyledText from './StyledText';
@@ -322,13 +322,17 @@ export default function AuthScreen({ onAuth, onLocal }) {
             </button>
             <button onClick={() => {
               setGroqApiKey("gsk_" + "WMbe9hd7LAU055J1" + "ktt3WGdyb3FYA32Y" + "MrNYHKiZHI6d93rai3ze");
-              toast.success('Test Mode enabled with Groq AI active!');
               onLocal();
-            }} className="btn btn-secondary" style={{ width: '100%', display: 'flex', gap: 10, justifyContent: 'center' }}>
+              setTimeout(() => {
+                seedDemoData();
+                toast.success('🎓 Demo loaded! Explore as Aarav Mehta, a BITS Pilani CS student.');
+              }, 100);
+            }} className="btn btn-secondary" style={{ width: '100%', display: 'flex', gap: 10, justifyContent: 'center', border: '1px solid rgba(139,92,246,0.4)', background: 'rgba(139,92,246,0.08)' }}>
               <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'linear-gradient(135deg, var(--violet), var(--mint))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 10, color: 'white', fontWeight: 'bold' }}>T</span>
               </div>
               Enter Test Mode
+              <span style={{ fontSize: '0.65rem', padding: '2px 7px', borderRadius: 20, background: 'rgba(139,92,246,0.25)', color: 'var(--violet2)', fontWeight: 700, letterSpacing: '0.05em' }}>DEMO DATA</span>
             </button>
           </div>
 

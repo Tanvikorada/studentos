@@ -308,6 +308,143 @@ export const setGroqApiKey = (key) => {
   }
 };
 
+// ─── DEMO DATA SEED ────────────────────────────────────────────────────────────
+// Called when a user enters Test Mode. Populates a realistic student profile.
+export function seedDemoData() {
+  const today = new Date();
+  const daysAgo = (n) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - n);
+    return d.toISOString().split('T')[0];
+  };
+  const daysFwd = (n) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + n);
+    return d.toISOString().split('T')[0];
+  };
+
+  // Build attendance records for the past 6 weeks realistically
+  const makeRecords = (presentRatio) => {
+    const records = [];
+    for (let i = 42; i >= 1; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const day = d.getDay();
+      if (day === 0 || day === 6) continue; // skip weekends
+      records.push({ date: d.toISOString().split('T')[0], status: Math.random() < presentRatio ? 'p' : 'a' });
+    }
+    return records;
+  };
+
+  mutateDB(d => {
+    // ── Profile ──────────────────────────────────────────────────
+    d.profile.name = 'Aarav Mehta';
+    d.profile.college = 'BITS Pilani';
+    d.profile.dept = 'B.Tech Computer Science';
+    d.profile.headline = 'CS Student · Full-Stack Dev · Open Source Enthusiast';
+    d.profile.quickNote = 'End-sem in 3 weeks. Focus mode ON 🎯';
+    d.profile.bio = 'Final year CS student passionate about building products that matter. Love React, distributed systems, and hackathons.';
+    d.profile.socials = { linkedin: 'linkedin.com/in/aaravmehta', github: 'github.com/aarav-dev', portfolio: 'aaravmehta.dev' };
+
+    // ── Tasks ─────────────────────────────────────────────────────
+    d.tasks = [
+      { id: '1001', title: 'Complete DBMS Assignment – ER Diagrams', desc: 'Draw ER diagram for Library Management System. Submit on Moodle.', cat: 'Academics', due: daysFwd(2), priority: 'high', status: 'inprogress', done: false, recurrence: 'none', subtasks: [{ id: 's1', text: 'Draw entity sets', done: true }, { id: 's2', text: 'Add relationships', done: false }, { id: 's3', text: 'Upload to Moodle', done: false }], createdAt: new Date().toISOString(), completedAt: '' },
+      { id: '1002', title: 'Study for OS Mid-Semester Exam', desc: 'Cover: Process Scheduling, Deadlocks, Memory Management chapters 5-9.', cat: 'Academics', due: daysFwd(5), priority: 'high', status: 'todo', done: false, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: '' },
+      { id: '1003', title: 'Push Portfolio Website v2', desc: 'Add Projects section, dark mode toggle, and deploy on Vercel.', cat: 'Career', due: daysFwd(7), priority: 'medium', status: 'inprogress', done: false, recurrence: 'none', subtasks: [{ id: 's4', text: 'Add Projects section', done: true }, { id: 's5', text: 'Dark mode toggle', done: true }, { id: 's6', text: 'Deploy on Vercel', done: false }], createdAt: new Date().toISOString(), completedAt: '' },
+      { id: '1004', title: 'Submit Internship Application – Google STEP', desc: 'Prepare resume, write cover letter, get 2 LORs.', cat: 'Career', due: daysFwd(10), priority: 'high', status: 'todo', done: false, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: '' },
+      { id: '1005', title: 'Read ML Paper – Attention Is All You Need', desc: 'Understand transformer architecture before the seminar next week.', cat: 'Learning', due: daysFwd(4), priority: 'medium', status: 'todo', done: false, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: '' },
+      { id: '1006', title: 'CN Lab Report – TCP Socket Programming', desc: 'Write observations and code explanation for Lab 6.', cat: 'Academics', due: daysAgo(1), priority: 'medium', status: 'done', done: true, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
+      { id: '1007', title: 'Review DSA Mock Test – Trees & Graphs', desc: 'Go through all wrong answers from yesterday\'s mock on LeetCode.', cat: 'Academics', due: daysAgo(2), priority: 'low', status: 'done', done: true, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: new Date().toISOString() },
+      { id: '1008', title: 'Register for HackCBS 7.0', desc: 'Team registration deadline. Invite Priya and Rohan.', cat: 'Personal', due: daysFwd(3), priority: 'medium', status: 'todo', done: false, recurrence: 'none', subtasks: [], createdAt: new Date().toISOString(), completedAt: '' },
+    ];
+
+    // ── Attendance ────────────────────────────────────────────────
+    d.attendance = [
+      { id: 'a1', subject: 'Operating Systems', req: 75, records: makeRecords(0.88) },
+      { id: 'a2', subject: 'Database Management Systems', req: 75, records: makeRecords(0.92) },
+      { id: 'a3', subject: 'Computer Networks', req: 75, records: makeRecords(0.68) }, // risky!
+      { id: 'a4', subject: 'Machine Learning', req: 75, records: makeRecords(0.95) },
+      { id: 'a5', subject: 'Software Engineering', req: 75, records: makeRecords(0.80) },
+    ];
+
+    // ── Notes ─────────────────────────────────────────────────────
+    d.notes = [
+      { id: 'n1', title: 'OS – Process Scheduling Algorithms', content: '## CPU Scheduling\n\n**FCFS** – First Come First Serve. Non-preemptive. Simple but convoy effect.\n\n**SJF** – Shortest Job First. Optimal avg waiting time. Hard to predict burst time.\n\n**Round Robin** – Each process gets a fixed time quantum (usually 20ms). Best for time-sharing systems.\n\n**Priority Scheduling** – Can lead to starvation. Solved by aging.\n\n> **Key formula**: Avg Waiting Time = (Sum of waiting times) / n', date: new Date().toLocaleDateString(), updatedAt: new Date().toISOString(), tags: ['OS', 'Exam'], subject: 'Operating Systems' },
+      { id: 'n2', title: 'DBMS – Normalization Quick Reference', content: '## Normal Forms\n\n- **1NF**: Atomic values, no repeating groups\n- **2NF**: 1NF + No partial dependency on composite key\n- **3NF**: 2NF + No transitive dependency\n- **BCNF**: Every determinant must be a candidate key\n\n**Armstrong\'s Axioms**: Reflexivity, Augmentation, Transitivity\n\n> Tip: For exam, always identify functional dependencies first.', date: new Date().toLocaleDateString(), updatedAt: new Date().toISOString(), tags: ['DBMS', 'Exam'], subject: 'Database Management Systems' },
+      { id: 'n3', title: 'ML – Transformer Architecture Notes', content: '## Attention Is All You Need (Vaswani et al., 2017)\n\n### Key Ideas\n- Replaces RNNs/CNNs with pure attention mechanism\n- **Multi-Head Attention**: Attends to information from different subspaces simultaneously\n- **Positional Encoding**: Adds position info since attention is permutation-invariant\n\n### Complexity\n- Self-attention: O(n² · d) — quadratic in sequence length\n- Recurrence: O(n · d²) — linear in sequence length\n\n> Great for parallelization on GPUs!', date: new Date().toLocaleDateString(), updatedAt: new Date().toISOString(), tags: ['ML', 'Research'], subject: 'Machine Learning' },
+      { id: 'n4', title: '🎯 Semester Goals', content: '## This Semester\'s Goals\n\n### Academic\n- [ ] Target 8.5+ CGPA\n- [ ] No backlogs\n- [ ] Complete all lab reports on time\n\n### Career\n- [ ] Land a summer internship (Google/MS/startup)\n- [ ] Publish portfolio v2\n- [ ] Solve 150+ LeetCode problems\n\n### Personal\n- [ ] Participate in HackCBS\n- [ ] Read 2 tech books\n- [ ] Improve sleep schedule 😅', date: new Date().toLocaleDateString(), updatedAt: new Date().toISOString(), tags: ['Goals', 'Personal'], subject: '' },
+    ];
+
+    // ── GPA ───────────────────────────────────────────────────────
+    d.gpa = {
+      semesters: [
+        { id: 'g1', name: 'Sem 1', gpa: 7.8, credits: 20 },
+        { id: 'g2', name: 'Sem 2', gpa: 8.1, credits: 22 },
+        { id: 'g3', name: 'Sem 3', gpa: 8.4, credits: 24 },
+        { id: 'g4', name: 'Sem 4', gpa: 8.6, credits: 24 },
+        { id: 'g5', name: 'Sem 5', gpa: 8.9, credits: 26 },
+      ],
+      targets: { desiredCGPA: '9.0' },
+    };
+
+    // ── Timetable ─────────────────────────────────────────────────
+    d.timetable = {
+      Monday:    [{ id: 't1', subject: 'Operating Systems', time: '9:00 AM', room: 'CS-101' }, { id: 't2', subject: 'Machine Learning', time: '11:00 AM', room: 'CS-204' }, { id: 't3', subject: 'DBMS Lab', time: '2:00 PM', room: 'Lab-3' }],
+      Tuesday:   [{ id: 't4', subject: 'Computer Networks', time: '10:00 AM', room: 'CS-102' }, { id: 't5', subject: 'Software Engineering', time: '12:00 PM', room: 'CS-301' }],
+      Wednesday: [{ id: 't6', subject: 'Operating Systems', time: '9:00 AM', room: 'CS-101' }, { id: 't7', subject: 'DBMS', time: '11:00 AM', room: 'CS-201' }, { id: 't8', subject: 'ML Lab', time: '2:00 PM', room: 'Lab-2' }],
+      Thursday:  [{ id: 't9', subject: 'Computer Networks', time: '10:00 AM', room: 'CS-102' }, { id: 't10', subject: 'Software Engineering', time: '12:00 PM', room: 'CS-301' }, { id: 't11', subject: 'CN Lab', time: '3:00 PM', room: 'Lab-1' }],
+      Friday:    [{ id: 't12', subject: 'Machine Learning', time: '9:00 AM', room: 'CS-204' }, { id: 't13', subject: 'DBMS', time: '11:00 AM', room: 'CS-201' }],
+    };
+
+    // ── Skills ────────────────────────────────────────────────────
+    d.skills = ['React', 'Node.js', 'Python', 'Java', 'SQL', 'Git', 'Docker', 'AWS (Basics)', 'Machine Learning', 'System Design'];
+
+    // ── Projects ──────────────────────────────────────────────────
+    d.projects = [
+      { id: 'p1', name: 'StudyBuddy AI', desc: 'An AI-powered study planner that generates personalized schedules using GPT-4. Built with React + FastAPI.', tech: 'React, Python, FastAPI, OpenAI', link: 'github.com/aarav-dev/studybuddy', status: 'Completed' },
+      { id: 'p2', name: 'Real-Time Code Collab', desc: 'Collaborative code editor with live sync, syntax highlighting, and video chat. Like Google Docs for code.', tech: 'React, Socket.io, Node.js, Monaco Editor', link: 'github.com/aarav-dev/codelab', status: 'In Progress' },
+      { id: 'p3', name: 'Campus Connect', desc: 'Campus event and club management app for colleges. 500+ students at BITS use it.', tech: 'React Native, Firebase, Node.js', link: 'github.com/aarav-dev/campus-connect', status: 'Live' },
+    ];
+
+    // ── Resume ────────────────────────────────────────────────────
+    d.resumeData = {
+      basics: { name: 'Aarav Mehta', email: 'aarav.mehta@bits-pilani.ac.in', phone: '+91 98765 43210', summary: 'Final year CS student with experience in full-stack development, ML, and open source. Passionate about building scalable products.', location: 'Pilani, Rajasthan' },
+      education: [{ school: 'BITS Pilani', degree: 'B.Tech Computer Science', year: '2022-2026', gpa: '8.56' }],
+      experience: [{ company: 'Razorpay', role: 'SDE Intern', duration: 'May 2025 – Jul 2025', desc: 'Built internal dashboard for payment reconciliation. Reduced manual work by 40%.' }],
+      skills: ['React', 'Node.js', 'Python', 'Java', 'SQL', 'Git', 'Docker', 'System Design'],
+      projects: [
+        { name: 'StudyBuddy AI', desc: 'AI study planner · React, FastAPI, OpenAI', link: 'github.com/aarav-dev/studybuddy' },
+        { name: 'Campus Connect', desc: 'College event app · React Native, Firebase · 500+ users', link: 'github.com/aarav-dev/campus-connect' },
+      ],
+    };
+
+    // ── Internships ───────────────────────────────────────────────
+    d.internships = [
+      { id: 'i1', company: 'Razorpay', role: 'SDE Intern', duration: 'May 2025 – Jul 2025', stipend: '₹60,000/mo', status: 'Completed', notes: 'Worked on payment reconciliation dashboard. Got PPO offer.' },
+    ];
+
+    // ── Certs ─────────────────────────────────────────────────────
+    d.certs = [
+      { id: 'c1', name: 'AWS Cloud Practitioner', issuer: 'Amazon Web Services', date: '2024-11', link: '' },
+      { id: 'c2', name: 'Deep Learning Specialization', issuer: 'Coursera (deeplearning.ai)', date: '2025-01', link: '' },
+    ];
+
+    // ── Recent Activity ───────────────────────────────────────────
+    d.recentActivity = [
+      { text: 'Completed CN Lab Report', date: new Date().toLocaleDateString(), time: '10:30 AM' },
+      { text: 'Added 3 new tasks for this week', date: new Date().toLocaleDateString(), time: '9:00 AM' },
+      { text: 'Updated portfolio website', date: daysAgo(1), time: '11:00 PM' },
+      { text: 'Marked present for all subjects', date: daysAgo(1), time: '9:15 AM' },
+    ];
+
+    // ── Settings ──────────────────────────────────────────────────
+    d.settings.onboardingComplete = true;
+    d.settings.aiProvider = 'groq';
+    d.xp = 340;
+    d.level = 4;
+  }, 'Loaded demo data');
+}
+
 export function getOpenAIApiKey() {
   return localStorage.getItem('studentos_openai_key') || '';
 }
