@@ -23,6 +23,26 @@ export default function SemesterEngine() {
   const [result, setResult] = useState(null);
   const [step, setStep] = useState('input'); // input | processing | done
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+      toast.error('PDF parsing is limited in browser. Please copy-paste the text or upload a .txt file.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setInputText(evt.target.result);
+        toast.success(`Loaded ${file.name}`);
+      }
+    };
+    reader.onerror = () => toast.error('Failed to read file');
+    reader.readAsText(file);
+  };
+
   const hasKey = !!(window.localStorage.getItem('studentos_groq_key') || window.localStorage.getItem('studentos_openai_key'));
 
   const processSyllabus = async () => {
@@ -193,9 +213,21 @@ Return ONLY valid JSON, no markdown.`;
       {/* Input area */}
       {step === 'input' && (
         <div className="card" style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-            <FileText size={16} color="var(--violet)" />
-            <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Paste Your Semester Document</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <FileText size={16} color="var(--violet)" />
+              <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Paste Your Semester Document</span>
+            </div>
+            <div>
+              <label style={{ 
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, 
+                fontSize: '0.8rem', padding: '6px 12px', background: 'rgba(255,255,255,0.05)', 
+                borderRadius: 8, border: '1px solid var(--border)', transition: 'background 0.2s' 
+              }}>
+                <Upload size={14} /> Upload Text/MD
+                <input type="file" accept=".txt,.md,.csv" style={{ display: 'none' }} onChange={handleFileUpload} />
+              </label>
+            </div>
           </div>
           <textarea
             value={inputText}

@@ -282,7 +282,7 @@ export default function CodeStudio() {
             </button>
           </div>
           
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', marginBottom: 12 }}>
             <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)' }} />
             <input 
               className="input input-sm" 
@@ -290,6 +290,35 @@ export default function CodeStudio() {
               style={{ paddingLeft: 32, borderRadius: 20 }}
               value={search} onChange={e => setSearch(e.target.value)}
             />
+          </div>
+
+          <div style={{ background: 'rgba(139,92,246,0.1)', padding: 10, borderRadius: 8, border: '1px solid rgba(139,92,246,0.2)' }}>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--violet2)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Sparkles size={12} /> Ask AI to generate code
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input 
+                className="input input-sm" 
+                style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: 'none', color: '#f3f4f6', fontSize: '0.75rem' }} 
+                placeholder="e.g. 'Binary Search in Python'" 
+                value={aiPrompt} 
+                onChange={e => setAiPrompt(e.target.value)} 
+                onKeyDown={e => e.key === 'Enter' && runAI('generate')} 
+              />
+              <button 
+                className="btn btn-primary btn-sm" 
+                onClick={() => {
+                  if (!adding && !editing) {
+                     setAdding(true); setEditing(false); setDraft({ title: 'AI Generated', lang: 'python', code: '', tags: ['AI'] });
+                  }
+                  runAI('generate');
+                }} 
+                disabled={!!aiLoading || !aiPrompt}
+                style={{ padding: '0 8px' }}
+              >
+                <ArrowRight size={14} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -367,7 +396,7 @@ export default function CodeStudio() {
         {(adding || editing) && (
           <div style={{ padding: '8px 20px', background: 'rgba(139,92,246,0.1)', borderBottom: '1px solid rgba(139,92,246,0.2)', display: 'flex', gap: 12, alignItems: 'center' }}>
             <Sparkles size={16} className="text-violet" />
-            <input className="input input-sm" style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: 'none', color: '#f3f4f6' }} placeholder="Ask AI to generate code (e.g. 'Write a fast inverse square root in C++')" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} onKeyDown={e => e.key === 'Enter' && runAI('generate')} />
+            <input className="input input-sm" style={{ flex: 1, background: 'rgba(0,0,0,0.2)', border: 'none', color: '#f3f4f6' }} placeholder="Ask AI to generate or modify this code..." value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} onKeyDown={e => e.key === 'Enter' && runAI('generate')} />
             <button className="btn btn-primary btn-sm" onClick={() => runAI('generate')} disabled={!!aiLoading || !aiPrompt}>Generate</button>
           </div>
         )}
