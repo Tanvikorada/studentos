@@ -17,24 +17,24 @@ const slideVariants = {
 
 export default function Onboarding({ onDone }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: '', college: '', dept: '', grokApiKey: '', openaiApiKey: '' });
+  const [form, setForm] = useState({ name: '', college: '', dept: '', groqApiKey: '', openaiApiKey: '' });
   const [goal, setGoal] = useState('balanced');
   const [syllabusText, setSyllabusText] = useState('');
   const [syllabusLoading, setSyllabusLoading] = useState(false);
   const [syllabusResult, setSyllabusResult] = useState(null);
-  const [providerSelected, setProviderSelected] = useState('grok');
+  const [providerSelected, setProviderSelected] = useState('groq');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  const isGrokValid = form.grokApiKey?.startsWith('xoxb-') && form.grokApiKey.length > 20;
+  const isGroqValid = form.groqApiKey?.startsWith('gsk_') && form.groqApiKey.length > 20;
   const isOpenAIValid = form.openaiApiKey?.startsWith('sk-') && form.openaiApiKey.length > 20;
-  const hasValidKey = isGrokValid || isOpenAIValid;
+  const hasValidKey = isGroqValid || isOpenAIValid;
 
   const handleSyllabusAnalyze = async () => {
     if (!syllabusText.trim() || !hasValidKey) return;
     setSyllabusLoading(true);
     // Save keys first so AI can run
-    if (form.grokApiKey) setGroqApiKey(form.grokApiKey);
+    if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
 
     const raw = await aiAnalyze({ text: syllabusText },
@@ -50,7 +50,7 @@ export default function Onboarding({ onDone }) {
   };
 
   const handleDone = () => {
-    if (form.grokApiKey) setGroqApiKey(form.grokApiKey);
+    if (form.groqApiKey) setGroqApiKey(form.groqApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
 
     mutateDB(d => {
@@ -266,7 +266,7 @@ export default function Onboarding({ onDone }) {
               {/* Provider tabs */}
               <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                 {[
-                  { id: 'grok', label: '⚡ Grok', sub: 'xAI Model', link: 'https://console.x.ai' },
+                  { id: 'groq', label: '⚡ Groq', sub: 'Llama 3.1 (Free)', link: 'https://console.groq.com/keys' },
                   { id: 'openai', label: '🧠 OpenAI', sub: 'GPT-4o', link: 'https://platform.openai.com' },
                 ].map(p => (
                   <div
@@ -289,16 +289,16 @@ export default function Onboarding({ onDone }) {
                 ))}
               </div>
 
-              {providerSelected === 'grok' && (
+              {providerSelected === 'groq' && (
                 <div className="card" style={{ marginTop: 16, background: 'rgba(255,255,255,0.02)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <label className="label" style={{ margin: 0 }}>Grok API Key (xoxb-...)</label>
-                    <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                      Get key <ExternalLink size={10} />
+                    <label className="label" style={{ margin: 0 }}>Groq API Key (gsk_...)</label>
+                    <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{ fontSize: '0.72rem', color: 'var(--mint)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                      Get free key <ExternalLink size={10} />
                     </a>
                   </div>
-                  <input className="input" type="password" placeholder="xoxb-..." value={form.grokApiKey} onChange={e => set('grokApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
-                  {isGrokValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Grok key detected</div>}
+                  <input className="input" type="password" placeholder="gsk_..." value={form.groqApiKey} onChange={e => set('groqApiKey', e.target.value)} style={{ fontFamily: 'monospace' }} />
+                  {isGroqValid && <div style={{ fontSize: '0.72rem', color: 'var(--mint)', marginTop: 4 }}>✓ Valid Groq key detected</div>}
                 </div>
               )}
               {providerSelected === 'openai' && (

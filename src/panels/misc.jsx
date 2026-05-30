@@ -766,12 +766,12 @@ export function Settings() {
           🤖 AI Integration
         </div>
         <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 16, lineHeight: 1.5 }}>
-          Connect an AI provider to enable personalized intelligence across StudentOS. Grok 2 is fast and powerful.
+          Connect an AI provider to enable personalized intelligence across StudentOS. Groq is fast and powerful.
         </p>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
           {[
-            { id: 'grok', label: '⚡ Grok (xAI)', desc: 'Grok-2 Latest', color: 'var(--mint)' },
+            { id: 'groq', label: '⚡ Groq (Llama)', desc: 'Llama 3.1 8B Fast', color: 'var(--mint)' },
             { id: 'openai', label: '🧠 OpenAI GPT-4o', desc: 'Most capable', color: 'var(--violet2)' },
           ].map(p => (
             <label key={p.id} style={{
@@ -789,10 +789,10 @@ export function Settings() {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {aiProvider === 'grok' && (
+          {aiProvider === 'groq' && (
             <div>
-              <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Grok API Key (xoxb-...) — <a href="https://console.x.ai" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>Get key</a></label>
-              <input className="input" type="password" placeholder="xoxb-..." value={grokKey} onChange={e => setGrokKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
+              <label className="label" style={{ fontSize: '0.75rem', marginBottom: 4 }}>Groq API Key (gsk_...) — <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{ color: 'var(--mint)' }}>Get key</a></label>
+              <input className="input" type="password" placeholder="gsk_..." value={groqKey} onChange={e => setGroqKeyLocal(e.target.value)} style={{ fontFamily: 'monospace' }} />
             </div>
           )}
           {aiProvider === 'openai' && (
