@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, toast, setGrokApiKey, setOpenAIApiKey, aiAnalyze } from '../store';
+import { mutateDB, toast, setGroqApiKey, setOpenAIApiKey, aiAnalyze } from '../store';
 import { CheckCircle, BookOpen, Briefcase, Target, ArrowRight, Sparkles, ExternalLink, FileText, Zap, ChevronRight, X } from 'lucide-react';
 
 const GOALS = [
@@ -34,7 +34,7 @@ export default function Onboarding({ onDone }) {
     if (!syllabusText.trim() || !hasValidKey) return;
     setSyllabusLoading(true);
     // Save keys first so AI can run
-    if (form.grokApiKey) setGrokApiKey(form.grokApiKey);
+    if (form.grokApiKey) setGroqApiKey(form.grokApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
 
     const raw = await aiAnalyze({ text: syllabusText },
@@ -50,7 +50,7 @@ export default function Onboarding({ onDone }) {
   };
 
   const handleDone = () => {
-    if (form.grokApiKey) setGrokApiKey(form.grokApiKey);
+    if (form.grokApiKey) setGroqApiKey(form.grokApiKey);
     if (form.openaiApiKey) setOpenAIApiKey(form.openaiApiKey);
 
     mutateDB(d => {

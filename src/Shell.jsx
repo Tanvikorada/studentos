@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, MessageSquare, GraduationCap, Code,
   Briefcase, GitBranch, User, Settings, ChevronLeft,
-  Search, Bell, Sparkles, X, Calendar, Cpu,
+  Menu, Bell, Sparkles, X, Calendar, Cpu,
 } from 'lucide-react';
 import { useDB, calcAttendance, calcCGPA } from './store';
 
@@ -106,15 +106,6 @@ export default function Shell() {
   const semesters = db.gpa?.semesters || [];
   const cgpa = parseFloat(calcCGPA(semesters)) || 0;
 
-  // Mobile nav (5 most important)
-  const MOBILE_NAV = [
-    { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-    { id: 'academics', label: 'Academics', icon: GraduationCap },
-    { id: 'career', label: 'Career', icon: Briefcase },
-    { id: 'chat', label: 'AI', icon: Sparkles },
-    { id: 'planner', label: 'Planner', icon: Calendar },
-  ];
-
   const theme = db.settings?.theme || 'chatgpt-style';
 
   // --- Shared components ---
@@ -159,25 +150,16 @@ export default function Shell() {
   const MobileHeader = () => (
     <header className="mobile-top-header">
       <button className="btn btn-ghost btn-icon" onClick={() => setMobileDrawerOpen(o => !o)}>
-        <Search size={20} />
+        <Menu size={20} />
       </button>
-      <span style={{ fontSize: '0.95rem', fontWeight: 700, flex: 1 }}>{panelLabel}</span>
+      <span style={{ fontSize: '0.95rem', fontWeight: 700, flex: 1, paddingLeft: 12 }}>{panelLabel}</span>
       <button className="btn btn-ghost btn-icon" onClick={() => setAiOpen(o => !o)} style={{ position: 'relative' }}>
         <Sparkles size={20} />
       </button>
     </header>
   );
 
-  const MobileBottomNav = () => (
-    <nav className="mobile-bottom-nav">
-      {MOBILE_NAV.map(item => (
-        <button key={item.id} className={`mobile-nav-btn ${panel === item.id ? 'active' : ''}`} onClick={() => handlePanelChange(item.id)}>
-          <item.icon size={20} />
-          <span>{item.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
+  // Removed MobileBottomNav in favor of sidebar only
 
   // --- Layout renderers ---
   const renderChatGPTLayout = () => (
@@ -253,7 +235,6 @@ export default function Shell() {
             </motion.div>
           </AnimatePresence>
         </div>
-        <MobileBottomNav />
       </div>
     </div>
   );
@@ -292,7 +273,6 @@ export default function Shell() {
             </Suspense>
           </motion.div>
         </AnimatePresence>
-        <MobileBottomNav />
       </div>
     </div>
   );
@@ -332,7 +312,6 @@ export default function Shell() {
             </motion.div>
           </AnimatePresence>
         </div>
-        <MobileBottomNav />
       </div>
     </div>
   );

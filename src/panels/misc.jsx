@@ -1,7 +1,7 @@
 import StyledText from '../components/StyledText';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { mutateDB, exportDB, resetDB, toast, useDB, callGrok, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey, getGrokApiKey, setGrokApiKey } from '../store';
+import { mutateDB, exportDB, resetDB, toast, useDB, callGrok, importDB, aiAnalyze, setOpenAIApiKey, getOpenAIApiKey, getGroqApiKey, setGroqApiKey } from '../store';
 import { Plus, Trash2, Download, Save, Upload, Trash, Mic, Send, RefreshCw, Briefcase, TrendingUp, DollarSign, Award, MapPin, Mail, Phone, User, Globe, Sparkles, Printer, FileCheck, LogOut } from 'lucide-react';
 
 export function ResumeBuilder() {
@@ -444,7 +444,7 @@ Start NOW with your first question.`;
     <div className="animate-fade" style={{ maxWidth: 680, margin: '0 auto', paddingBottom: 40 }}>
       <div style={{ marginBottom: 32 }}>
         <StyledText text="AI Mock Interviewer" style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }} />
-        <p style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>Voice-to-Voice • Grok • Real interview simulation</p>
+        <p style={{ color: 'var(--text3)', fontSize: '0.85rem' }}>Voice-to-Voice • Groq AI • Real interview simulation</p>
       </div>
 
       <div className="card mb-4" style={{ borderColor: 'rgba(139,92,246,0.3)' }}>
@@ -733,12 +733,12 @@ export function MarketTrends() {
 
 export function Settings() {
   const db = useDB();
-  const [grokKey, setGrokKeyLocal] = useState(getGrokApiKey());
+  const [groqKey, setGroqKeyLocal] = useState(getGroqApiKey());
   const [openAIKey, setOpenAIKeyLocal] = useState(getOpenAIApiKey());
-  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'grok');
+  const [aiProvider, setAiProvider] = useState(db.settings?.aiProvider || 'groq');
 
   useEffect(() => {
-    setAiProvider(db.settings?.aiProvider || 'grok');
+    setAiProvider(db.settings?.aiProvider || 'groq');
   }, [db.settings]);
 
   const saveKeys = () => {
@@ -746,7 +746,7 @@ export function Settings() {
       if (!d.settings) d.settings = {}; 
       d.settings.aiProvider = aiProvider;
     }, 'Updated AI Integration settings');
-    setGrokApiKey(grokKey);
+    setGroqApiKey(groqKey);
     setOpenAIApiKey(openAIKey);
     toast.success('AI settings saved securely to browser');
   };

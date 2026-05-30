@@ -151,9 +151,9 @@ function migrateDB(raw) {
   const migrated = mergeDefaults(defaultDB, raw || {});
   migrated.schemaVersion = SCHEMA_VERSION;
 
-  if (migrated.settings?.grokApiKey) {
-    setGrokApiKey(migrated.settings.grokApiKey);
-    delete migrated.settings.grokApiKey;
+  if (migrated.settings?.groqApiKey) {
+    setGroqApiKey(migrated.settings.groqApiKey);
+    delete migrated.settings.groqApiKey;
   }
 
   migrated.tasks = (migrated.tasks || []).map(normalizeTask);
@@ -293,13 +293,20 @@ export function getDB() {
   return db;
 }
 
-export function getGrokApiKey() {
-  return localStorage.getItem('studentos_grok_key') || '';
-}
+export const getGroqApiKey = () => {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem('studentos_groq_key');
+};
 
-export function setGrokApiKey(apiKey) {
-  localStorage.setItem('studentos_grok_key', String(apiKey || '').trim());
-}
+export const setGroqApiKey = (key) => {
+  if (typeof window !== 'undefined') {
+    if (key) {
+      window.localStorage.setItem('studentos_groq_key', key);
+    } else {
+      window.localStorage.removeItem('studentos_groq_key');
+    }
+  }
+};
 
 export function getOpenAIApiKey() {
   return localStorage.getItem('studentos_openai_key') || '';
@@ -488,19 +495,29 @@ export async function searchWeb(query) {
 }
 
 export async function callGrok(messages, systemPrompt = '') {
-  const apiKey = getGrokApiKey();
-  if (!apiKey) {
-    return "No Grok API key set. Go to Settings and add your Grok API key to enable AI features.";
+  const groqKey = getGroqApiKey();
+  const openAIKey = getOpenAIApiKey();
+
+  if (!groqKey && !openAIKey) {
+    return Promise.reject(new Error("Please connect your Groq or OpenAI API key in Identity & Settings to use AI features."));
   }
+
+  const provider = openAIKey ? 'openai' : 'groq';
+  const activeKey = openAIKey || groqKey;
+  const activeModel = openAIKey ? 'gpt-4o-mini' : 'llama-3.1-8b-instant';
+  const endpoint = openAIKey 
+    ? 'https://api.openai.com/v1/chat/completions' 
+    : 'https://api.groq.com/openai/v1/chat/completions';
+
   try {
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${activeKey}`,
       },
       body: JSON.stringify({
-        model: 'grok-2-latest',
+        model: activeModel,
         messages: systemPrompt
           ? [{ role: 'system', content: systemPrompt }, ...messages]
           : messages,
