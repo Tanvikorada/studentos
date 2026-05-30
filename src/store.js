@@ -436,10 +436,37 @@ export function seedDemoData() {
 
     // ── Projects ──────────────────────────────────────────────────
     d.projects = [
-      { id: 'p1', name: 'StudyBuddy AI', desc: 'An AI-powered study planner that generates personalized schedules using GPT-4. Built with React + FastAPI.', tech: 'React, Python, FastAPI, OpenAI', link: 'github.com/aarav-dev/studybuddy', status: 'Completed' },
-      { id: 'p2', name: 'Real-Time Code Collab', desc: 'Collaborative code editor with live sync, syntax highlighting, and video chat. Like Google Docs for code.', tech: 'React, Socket.io, Node.js, Monaco Editor', link: 'github.com/aarav-dev/codelab', status: 'In Progress' },
-      { id: 'p3', name: 'Campus Connect', desc: 'Campus event and club management app for colleges. 500+ students at BITS use it.', tech: 'React Native, Firebase, Node.js', link: 'github.com/aarav-dev/campus-connect', status: 'Live' },
+      { id: 'p1', name: 'StudyBuddy AI', desc: 'An AI-powered study planner that generates personalized schedules using GPT-4. Built with React + FastAPI.', tech: ['React', 'Python', 'FastAPI', 'OpenAI'], link: 'github.com/aarav-dev/studybuddy', status: 'Completed' },
+      { id: 'p2', name: 'Real-Time Code Collab', desc: 'Collaborative code editor with live sync, syntax highlighting, and video chat. Like Google Docs for code.', tech: ['React', 'Socket.io', 'Node.js', 'Monaco'], link: 'github.com/aarav-dev/codelab', status: 'In Progress' },
+      { id: 'p3', name: 'Campus Connect', desc: 'Campus event and club management app for colleges. 500+ students at BITS use it.', tech: ['React Native', 'Firebase', 'Node.js'], link: 'github.com/aarav-dev/campus-connect', status: 'Live' },
     ];
+
+    // ── Study Plan & Briefing ──────────────────────────────────────
+    const today = new Date().toISOString().split('T')[0];
+    d.studyPlan = {
+      lastBriefingDate: today,
+      dailyBriefing: "🔥 **Urgent:** OS assignment due in 2 days. Start now.\n⚠️ **Warning:** Machine Learning attendance at 72%. Don't miss Friday's class.\n🎯 **Focus:** Review Digital Logic unit 3 notes for next week's quiz."
+    };
+
+    // ── AI Chat Threads ───────────────────────────────────────────
+    d.chatThreads = {
+      general: [
+        { role: 'user', content: 'What should I focus on today?' },
+        { role: 'assistant', content: 'Based on your tasks, I recommend prioritizing your OS assignment since it is due in 2 days. Then, review your Digital Logic notes.' }
+      ],
+      academics: [
+        { role: 'user', content: 'Can you explain paging in Operating Systems?' },
+        { role: 'assistant', content: 'Sure! Paging is a memory management scheme that eliminates the need for contiguous allocation of physical memory. It divides physical memory into fixed-size blocks called frames, and logical memory into blocks of the same size called pages.' }
+      ],
+      exams: [
+        { role: 'user', content: 'Create a study schedule for my upcoming DBMS mid-sem.' },
+        { role: 'assistant', content: 'Here is a 5-day plan for DBMS:\n\n1. **Day 1:** ER Models and Relational Algebra\n2. **Day 2:** Normalization (1NF to BCNF)\n3. **Day 3:** SQL queries and Joins\n4. **Day 4:** Transactions and Concurrency Control\n5. **Day 5:** Indexing and Past papers practice' }
+      ],
+      career: [
+        { role: 'user', content: 'How can I improve my resume for a backend engineering internship?' },
+        { role: 'assistant', content: 'Your resume is quite good (Score: 85/100). To boost it for backend roles, I suggest:\n\n- Emphasize the FastAPI architecture in your StudyBuddy project.\n- Add a project involving caching (Redis) or message queues (RabbitMQ).\n- Highlight your database optimization skills.' }
+      ]
+    };
 
     // ── Resume ────────────────────────────────────────────────────
     d.resumeData = {
